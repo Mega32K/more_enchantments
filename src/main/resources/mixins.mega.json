@@ -1,0 +1,38 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "xclient.mega.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mixins.mega.refmap.json",
+  "mixins": [
+    "EnchantmentHelperMixin",
+    "EnchantmentMixin",
+    "EntityMixin",
+    "FHCMixin",
+    "InventoryMixin",
+    "LivingEntityMixin",
+    "ServerLevelMixin"
+  ],
+  "client": [
+    "AbstractWidgetMixin",
+    "ClientLevelMixin",
+    "EntityRenderDispatcherMixin",
+    "EntityRendererMixin",
+    "FM",
+    "FRMixin",
+    "GameRendererMixin",
+    "GuiMixin",
+    "IAbstractWidget",
+    "IButton",
+    "IImageButton",
+    "MA",
+    "MinecraftMixin",
+    "MPGMMixin",
+    "ParticleManagerMixin",
+    "SGMixin",
+    "TitleScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
