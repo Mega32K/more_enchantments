@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -27,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
+import xclient.mega.event.RenderEvent;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -137,6 +139,7 @@ public abstract class GameRendererMixin {
                 if (!this.minecraft.options.hideGui || this.minecraft.screen != null) {
                     this.renderItemActivationAnimation(this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight(), p_109094_);
                     this.minecraft.gui.render(posestack1, p_109094_);
+                    MinecraftForge.EVENT_BUS.post(new RenderEvent());
                     RenderSystem.clear(256, Minecraft.ON_OSX);
                 }
 

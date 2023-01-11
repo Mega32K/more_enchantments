@@ -3,12 +3,16 @@ package xclient.mega.mod;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import xclient.mega.Main;
 import xclient.mega.MegaUtil;
-import xclient.mega.utils.*;
+import xclient.mega.utils.ColorPutter;
+import xclient.mega.utils.Render2DUtil;
+import xclient.mega.utils.RendererUtils;
+import xclient.mega.utils.Vec2d;
 
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Module<T> {
     private String name;
@@ -23,6 +27,9 @@ public class Module<T> {
     public int width;
     public int height;
     public boolean enableColorPutter;
+
+    public Module<?> FatherModule = null;
+    public Set<Module<?>> children = new HashSet<>();
 
     public Module(String name, T value, boolean enableColorPutter, Font font) {
         this.font = font;
@@ -52,7 +59,6 @@ public class Module<T> {
 
     public Module<T> unaddToList() {
         ModuleManager.modules.remove(this);
-        ModuleManager.configuration_father_modules.add(this);
         return this;
     }
 
@@ -111,17 +117,38 @@ public class Module<T> {
         this(name, null);
     }
 
-    public void render(PoseStack stack, int x, int y) {
+    public void render(PoseStack stack, int x, int y, boolean isMouseOver) {
         if (value instanceof Float f)
             value = (T) Float.valueOf(String.format("%.2f", f));
         int color = new Color(55, 71, 90, 150).getRGB();
+        int color2 = new Color(0, 0, 0, Main.instance != null ? Main.base_timehelper.integer_time : 150).getRGB();
         this.x = x;
         this.y = y;
-        Render2DUtil.drawRect(stack, x, y, (int) (width*1.5F), height+1, color);
+        Render2DUtil.drawRect(stack, x, y, (int) (width*1.5F), height+1, isMouseOver ? color2 : color);
         this.font.drawShadow(stack, getInfo(), x, y, RendererUtils.WHITE);
         if (width == 0)
             width = font.width(getInfo());
         if (height == 0)
             height = font.lineHeight;
     }
+
+    public Module<T> setFather(Module<?> module) {
+        FatherModule = module;
+        return this;
+    }
+
+    public Module<?> addChild(Module<?> module) {
+        children.add(module);
+        return this;
+    }
+
+    public Module<?> removeChild(Module<?> module) {
+        children.remove(module);
+        return this;
+    }
+
+    public Module<?> getFather() {
+        return FatherModule;
+    }
+
 }

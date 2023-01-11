@@ -34,6 +34,8 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Boolean> renderPlayerOutline;
     public static ForgeConfigSpec.ConfigValue<Boolean> full_bright;
     public static ForgeConfigSpec.ConfigValue<Boolean> dner;
+    public static ForgeConfigSpec.ConfigValue<Boolean> quickly_place;
+    public static ForgeConfigSpec.ConfigValue<Boolean> key_display;
 
     static {
         ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -68,6 +70,8 @@ public class Config {
         renderPlayerOutline = COMMON_BUILDER.define("renderPlayerOutline", false);
         full_bright = COMMON_BUILDER.define("full_bright", false);
         dner = COMMON_BUILDER.define("dner", false);
+        key_display = COMMON_BUILDER.define("key_display", false);
+        quickly_place = COMMON_BUILDER.define("quickly_place", false);
         COMMON_BUILDER.pop();
         COMMON_CONFIG = COMMON_BUILDER.build();
     }

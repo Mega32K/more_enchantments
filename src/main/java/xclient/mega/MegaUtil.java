@@ -233,6 +233,8 @@ public class MegaUtil {
         set(Config.renderPlayerOutline, Main.renderPlayerOutline);
         set(Config.full_bright, Main.full_bright);
         set(Config.dner, Main.dner);
+        set(Config.quickly_place, Main.quickly_place);
+        set(Config.key_display, Main.key_display);
     }
 
     public static void read() {
@@ -261,6 +263,8 @@ public class MegaUtil {
         Main.renderPlayerOutline = Config.renderPlayerOutline.get();
         Main.full_bright = Config.full_bright.get();
         Main.dner = Config.dner.get();
+        Main.key_display = Config.key_display.get();
+        Main.quickly_place = Config.quickly_place.get();
     }
 
     public static boolean hasTexture(String location) {

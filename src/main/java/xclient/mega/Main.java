@@ -5,9 +5,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.world.InteractionHand;
@@ -24,16 +26,21 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.lwjgl.glfw.GLFW;
+import xclient.mega.event.RenderEvent;
 import xclient.mega.mod.Module;
 import xclient.mega.mod.ModuleManager;
 import xclient.mega.utils.RainbowFont;
+import xclient.mega.utils.Render2DUtil;
 import xclient.mega.utils.RendererUtils;
+import xclient.mega.utils.TimeHelper;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,8 +49,10 @@ public class Main {
     public static String version = "V1.1";
 
     public static Saver<Integer> GAMMA;
+    public static TimeHelper base_timehelper;
 
     public static boolean enable_display_info = false;
+    public static int _x_ = 3, _y_ = 70;
 
     public static boolean killaura_displayInfo = false;
     public static float killaura_range = 3.8F;
@@ -61,6 +70,8 @@ public class Main {
     public static boolean renderPlayerOutline;
     public static boolean full_bright;
     public static boolean dner;
+    public static boolean quickly_place;
+    public static boolean key_display;
 
     public static Module<?> CLIENT;
     public static Module<Boolean> AUTO_ATTACK;
@@ -74,6 +85,8 @@ public class Main {
     public static Module<Boolean> RENDER_OUTLINE;
     public static Module<Boolean> FULL_BRIGHT;
     public static Module<Boolean> DISABLE_NEGATIVE_EFFECT_RENDERER;
+    public static Module<Boolean> QUICKLY_PLACE;
+    public static Module<Boolean> KEY_DISPLAY;
 
     public static Module<Float> SUPER_KILL_AURA$RANGE;
     public static Module<Boolean> SUPER_KILL_AURA$ATTACK_PLAYER;
@@ -91,11 +104,20 @@ public class Main {
             GLFW.GLFW_KEY_J,
             "key.category.x_client");
 
+    public static KeyMapping INVSEE =  new KeyMapping("key.invsee",
+            KeyConflictContext.IN_GAME,
+            KeyModifier.CONTROL,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_I,
+            "key.category.x_client");
+
 
     public static void registerKey(KeyMapping... keyMappings) {
         for (KeyMapping key : keyMappings)
             ClientRegistry.registerKeyBinding(key);
     }
+
+    public static Main instance = null;
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
@@ -103,21 +125,25 @@ public class Main {
         Networking.registerMessage();
         registerKey(DISPLAY_INFO, OPEN);
         setModules();
+        if (base_timehelper == null)
+            base_timehelper = new TimeHelper(20, 160);
+        Main.instance = this;
     }
 
     public static void setModules() {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
         CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS);
-        AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setLeft((d -> {auto_attack = !auto_attack;System.out.println(auto_attack);}));
+        AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setLeft((d -> auto_attack = !auto_attack));
         ENABLE_HURT_EFFECT = new Module<>("Hurt Effect", enableHurtEffect, false, RainbowFont.NORMAL).setLeft((d -> enableHurtEffect = !enableHurtEffect));
 
         SUPER_KILL_AURA = new Module<>("Super KillAura", superKillAura, false, RainbowFont.NORMAL).setLeft((d -> superKillAura = !superKillAura)).setRight(d -> killaura_displayInfo = !killaura_displayInfo);
         SUPER_KILL_AURA$RANGE = new Module<>("KillAura Range", killaura_range, false, RainbowFont.NORMAL).setLeft((d -> killaura_range += 0.5F)).setRight(d -> {
             if (killaura_range > 0)
                 killaura_range -= 0.1F;
-        }).unaddToList();
-        SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer)).unaddToList();
+        }).setFather(SUPER_KILL_AURA);
+        SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer))
+                .setFather(SUPER_KILL_AURA);
 
         REACH = new Module<>("Reach", reach_distance, false, RainbowFont.NORMAL).setLeft((d -> reach_distance += 0.1F)).setRight((d -> {
             if (reach_distance > 0F)
@@ -145,6 +171,8 @@ public class Main {
             } else Minecraft.getInstance().options.gamma = GAMMA.getV();
         }));
         DISABLE_NEGATIVE_EFFECT_RENDERER = new Module<>("Disable NegativeEffect Rendering", dner, false, RainbowFont.NORMAL).setLeft((d -> dner = !dner));
+        QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setLeft(d -> quickly_place = !quickly_place);
+        KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setLeft(d -> key_display = !key_display);
 
     }
 
@@ -163,15 +191,33 @@ public class Main {
     public static class KeyEvents {
         @SubscribeEvent
         public static void playerUpdate(TickEvent.PlayerTickEvent event) {
-            if (event.side.isClient()) {
+            if (event.side.isClient() && event.player instanceof LocalPlayer) {
                 if (sprint)
                     event.player.setSprinting(true);
             }
         }
 
         @SubscribeEvent
+        public static void ld(LivingDeathEvent event) {
+            if (respawn) {
+                if (event.getEntityLiving() instanceof LocalPlayer)
+                    if (Minecraft.getInstance().player != null)
+                        Minecraft.getInstance().player.connection.send(new ServerboundChatPacket("/back"));
+            }
+        }
+
+        @SubscribeEvent
+        public static void renderUpdate(TickEvent.RenderTickEvent event){
+            if (quickly_place)
+                Minecraft.getInstance().rightClickDelay = 0;
+            //Minecraft.getInstance().getWindow().setTitle("X-Client | " + Main.version);
+        }
+
+        @SubscribeEvent
         public static void onKey(InputEvent.KeyInputEvent event) {
             Minecraft mc = Minecraft.getInstance();
+            Entity point = mc.crosshairPickEntity;
+
             if (OPEN.consumeClick()) {
                 Minecraft.getInstance().setScreen(new XScreen());
             }
@@ -202,9 +248,10 @@ public class Main {
                         player.connection.send(new ServerboundMovePlayerPacket.StatusOnly(true));
                 }
                 if (superKillAura && client_ticks % 20 == 0) {
-                    for (Entity entity : xclient.mega.utils.MegaUtil.getEntitiesToWatch(150, player)) {
+                    for (Entity entity : xclient.mega.utils.MegaUtil.getEntitiesToWatch(512, player)) {
                         if (entity instanceof LivingEntity livingEntity && point != player && !livingEntity.isDeadOrDying() && !livingEntity.isInvisible() && player.distanceTo(entity) <= killaura_range && livingEntity.deathTime <= 0) {
                             if (mc.gameMode != null ) {
+                                //noinspection ConstantConditions
                                 if (!killaura_attackPlayer || (killaura_attackPlayer && !(livingEntity instanceof Player)))
                                     mc.gameMode.attack(player, entity);
                             }
@@ -227,10 +274,9 @@ public class Main {
         }
 
         @SubscribeEvent
-        public static void renderTick(RenderGameOverlayEvent event) {
+        public static void renderTick(RenderEvent event) {
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
-            int rainbow_colour = (int) ((int) Util.getMillis() / 1000F % 1);
             //Entity point = mc.crosshairPickEntity;
             Entity toWatch = xclient.mega.utils.MegaUtil.getEntityToWatch(20, player);
             Font font = mc.font;
@@ -238,7 +284,7 @@ public class Main {
                 if (toWatch != null) {
                     if (toWatch instanceof LivingEntity living_point)
                         InventoryScreen.renderEntityInInventory(105, 100, 30, 45, 45, living_point);
-                    else font.drawShadow(stack, "No model", 105, 100, rainbow_colour);
+                    else font.drawShadow(stack, "No model", 105, 100, 0xFFFFFFFF);
                     if (toWatch instanceof LivingEntity livingEntity) {
                         font.drawShadow(stack, "Health:" + String.format("%.2f", livingEntity.getHealth()) + "/" + String.format("%.2f", livingEntity.getMaxHealth()), 105, (int) toWatch.getEyeHeight() * 5 + 118, RendererUtils.WHITE);
                         font.drawShadow(stack, "MainHandItem:" + livingEntity.getMainHandItem().getDisplayName().getString(), 105, (int) toWatch.getEyeHeight() * 5 + 126, RendererUtils.WHITE);
@@ -247,9 +293,19 @@ public class Main {
             int x = 0; int y = 0;
             if (enable_display_info && !(mc.screen instanceof XScreen)) {
                 for (Module<?> module :ModuleManager.modules) {
-                    module.render(stack, x, y);
+                    module.render(stack, x, y, false);
                     y+=11;
                 }
+            }
+            if (key_display) {
+                int background = new Color(255, 255, 255, 50).getRGB();
+                int color = new Color(0, 0, 0, base_timehelper.integer_time).getRGB();
+                Options options = mc.options;
+                Render2DUtil.drawRect(stack, _x_ + 1 + 20, _y_, 20, 20, options.keyUp.isDown() ? color : background);
+                Render2DUtil.drawRect(stack, _x_ + 20 + 1, _y_ + 20 + 1, 20, 20, options.keyDown.isDown() ? color : background);
+                Render2DUtil.drawRect(stack, _x_, _y_ + 20 + 1, 20, 20, options.keyLeft.isDown() ? color : background);
+                Render2DUtil.drawRect(stack, _x_ + 40 + 2, _y_ + 20 + 1, 20, 20, options.keyRight.isDown() ? color : background);
+                Render2DUtil.drawRect(stack, _x_ + 1, _y_ + 40 + 2 + 2, 61, 15, options.keyJump.isDown() ? color : background);
             }
         }
     }

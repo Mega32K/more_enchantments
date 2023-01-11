@@ -4,7 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.resources.ResourceLocation; 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.function.Function;
 
@@ -13,7 +14,7 @@ public class RainbowFont extends Font {
         public int drawShadow(PoseStack stack, String text, float x, float y, int color) {
             //float colorrStep = (float)rangeRemap(Math.sin(((float)milliTime() / 1200.0F)) % 6.28318D, -0.9D, 2.5D, 0.025D, 0.15D);
             float posX = x;
-            int col = 1919810;
+            int col = 191981;
             for (int i = 0; i < text.length(); i++) {
                 int c = col * i;
                 posX = super.drawShadow(stack, String.valueOf(text.charAt(i)), posX, y, c);
@@ -38,7 +39,7 @@ public class RainbowFont extends Font {
         float colorrStep = (float)rangeRemap(Math.sin(((float)milliTime() / 1200.0F)) % 6.28318D, -0.9D, 2.5D, 0.025D, 0.15D);
         float posX = x;
         for (int i = 0; i < text.length(); i++) {
-            int c = color & 0xFF000000 | MathHelper.hsvToRGB(colorr, 0.15F, 1.0F);
+            int c = color & 0xFF000000 | MathHelper.hsvToRGB(colorr, 0.75F, 1.0F);
             posX = super.drawShadow(stack, String.valueOf(text.charAt(i)), posX, y, c);
             colorr += colorrStep;
             colorr %= 1.0F;

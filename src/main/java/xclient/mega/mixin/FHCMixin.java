@@ -23,8 +23,6 @@ public class FHCMixin {
             screen = null;
             Minecraft.getInstance().getSoundManager().resume();
             Minecraft.getInstance().mouseHandler.grabMouse();
-            if (Minecraft.getInstance().player != null)
-                Minecraft.getInstance().player.connection.send(new ServerboundChatPacket("/back"));
             ci.cancel();
         }
     }
