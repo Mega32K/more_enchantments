@@ -4,13 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import xclient.mega.Main;
-import xclient.mega.MegaUtil;
 import xclient.mega.utils.ColorPutter;
 import xclient.mega.utils.Render2DUtil;
 import xclient.mega.utils.RendererUtils;
-import xclient.mega.utils.Vec2d;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -46,11 +43,6 @@ public class Module<T> {
         every.add(this);
     }
 
-    static void saveInfo() {
-        MegaUtil.read();
-        MegaUtil.writeXCLIENT();
-    }
-
     public Module(String name, T value, boolean enableColorPutter) {
         this(name, value, enableColorPutter, Minecraft.getInstance().font);
     }
@@ -77,7 +69,6 @@ public class Module<T> {
     public void left() {
         if (left != null) {
             left.run(this);
-            System.out.println(getInfo() + " run");
         }
         else System.out.println(getName() + " left module is NULL!");
 

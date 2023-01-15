@@ -38,9 +38,11 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Boolean> dner;
     public static ForgeConfigSpec.ConfigValue<Boolean> quickly_place;
     public static ForgeConfigSpec.ConfigValue<Boolean> key_display;
+    public static ForgeConfigSpec.ConfigValue<Boolean> quickly_bow;
 
     public static ForgeConfigSpec.ConfigValue<Integer> key_x;
     public static ForgeConfigSpec.ConfigValue<Integer> key_y;
+    public static ForgeConfigSpec.ConfigValue<Float> key_scale;
 
     static {
         ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -65,7 +67,7 @@ public class Config {
         killaura_range = COMMON_BUILDER.define("killaura_range", 3.8F);
         killaura_attackPlayer = COMMON_BUILDER.define("killaura_attackPlayer", false);
         auto_attack = COMMON_BUILDER.define("auto_attack", false);
-        enableHurtEffect = COMMON_BUILDER.define("enableHurtEffect", false);
+        enableHurtEffect = COMMON_BUILDER.define("enableHurtEffect", true);
         superKillAura = COMMON_BUILDER.define("superKillAura", false);
         no_fall = COMMON_BUILDER.define("no_fall", false);
         respawn = COMMON_BUILDER.define("respawn", false);
@@ -80,6 +82,8 @@ public class Config {
         background = COMMON_BUILDER.define("background index", 1);
         key_x = COMMON_BUILDER.define("key x", 3);
         key_y = COMMON_BUILDER.define("key y", 70);
+        key_scale = COMMON_BUILDER.define("key_scale", 1.0F);
+        quickly_bow = COMMON_BUILDER.define("quickly bow", false);
         COMMON_BUILDER.pop();
         COMMON_CONFIG = COMMON_BUILDER.build();
     }

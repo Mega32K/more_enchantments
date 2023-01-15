@@ -12,11 +12,18 @@ import xclient.mega.MegaUtil;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
+
     @Shadow public abstract Window getWindow();
 
-    @Inject(method = "run", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void init(CallbackInfo ci) {
+        getWindow().setTitle("");
+    }
+
+
+    @Inject(method = "run", at = @At("HEAD"))
     private void run(CallbackInfo ci) {
-        getWindow().setTitle("X-Client | " + Main.version);
+        getWindow().setTitle("");
     }
 
     @Inject(method = "close", at = @At("HEAD"))

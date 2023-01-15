@@ -8,6 +8,7 @@
     "EnchantmentHelperMixin",
     "EnchantmentMixin",
     "EntityMixin",
+    "FEFMixin",
     "FHCMixin",
     "InventoryMixin",
     "LivingEntityMixin",
@@ -26,13 +27,15 @@
     "IAbstractWidget",
     "IButton",
     "IImageButton",
+    "InventoryScreenMixin",
     "LoadingOverlayMixin",
     "MA",
     "MinecraftMixin",
     "MPGMMixin",
     "ParticleManagerMixin",
     "SGMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

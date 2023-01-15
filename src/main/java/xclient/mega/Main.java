@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -17,7 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
@@ -36,14 +34,17 @@ import org.lwjgl.glfw.GLFW;
 import xclient.mega.event.RenderEvent;
 import xclient.mega.mod.Module;
 import xclient.mega.mod.ModuleManager;
+import xclient.mega.mod.bigmodule.BigModuleBase;
+import xclient.mega.mod.bigmodule.KeyDisplayBM;
 import xclient.mega.utils.RainbowFont;
-import xclient.mega.utils.Render2DUtil;
 import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.TimeHelper;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mod("x_client")
 public class Main {
@@ -54,6 +55,7 @@ public class Main {
 
     public static boolean enable_display_info = false;
     public static int _x_ = 3, _y_ = 70;
+    public static float key_scale = 1.0F;
 
     public static boolean killaura_displayInfo = false;
     public static float killaura_range = 3.8F;
@@ -73,6 +75,7 @@ public class Main {
     public static boolean dner;
     public static boolean quickly_place;
     public static boolean key_display;
+    public static boolean quickly_bow;
 
     public static Module<?> CLIENT;
     public static Module<Boolean> AUTO_ATTACK;
@@ -88,11 +91,14 @@ public class Main {
     public static Module<Boolean> DISABLE_NEGATIVE_EFFECT_RENDERER;
     public static Module<Boolean> QUICKLY_PLACE;
     public static Module<Boolean> KEY_DISPLAY;
+    public static Module<Boolean> QUICKLY_BOW;
 
     public static Module<Float> SUPER_KILL_AURA$RANGE;
     public static Module<Boolean> SUPER_KILL_AURA$ATTACK_PLAYER;
 
     public static List<Module<Component>> PLAYER_CAMERA;
+
+    public static BigModuleBase KEY_DISPLAY_BM;
 
     public static KeyMapping DISPLAY_INFO =  new KeyMapping("key.info",
             KeyConflictContext.IN_GAME,
@@ -128,6 +134,7 @@ public class Main {
         Networking.registerMessage();
         registerKey(DISPLAY_INFO, OPEN, OPEN2);
         setModules();
+        setBms();
         if (base_timehelper == null)
             base_timehelper = new TimeHelper(20, 160);
         if (timeHelper == null)
@@ -147,6 +154,10 @@ public class Main {
         }
     }
 
+    public static void setBms() {
+        KEY_DISPLAY_BM = new KeyDisplayBM();
+    }
+
     public static void setModules() {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
@@ -162,6 +173,8 @@ public class Main {
         }).setFather(SUPER_KILL_AURA);
         SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer))
                 .setFather(SUPER_KILL_AURA);
+        QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setLeft(d -> quickly_place = !quickly_place);
+        QUICKLY_BOW = new Module<>("Quickly Bow", quickly_bow, false, RainbowFont.NORMAL).setLeft(d -> quickly_bow = !quickly_bow);
 
         REACH = new Module<>("Reach", reach_distance, false, RainbowFont.NORMAL).setLeft((d -> reach_distance += 0.1F)).setRight((d -> {
             if (reach_distance > 0F)
@@ -189,7 +202,6 @@ public class Main {
             } else Minecraft.getInstance().options.gamma = GAMMA.getV();
         }));
         DISABLE_NEGATIVE_EFFECT_RENDERER = new Module<>("Disable NegativeEffect Rendering", dner, false, RainbowFont.NORMAL).setLeft((d -> dner = !dner));
-        QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setLeft(d -> quickly_place = !quickly_place);
         KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setLeft(d -> key_display = !key_display);
 
         YScreen.OPEN_INVENTORY = new Module<>("Open Inv").setLeft(b -> {
@@ -327,16 +339,6 @@ public class Main {
                     module.render(stack, x, y, false);
                     y+=11;
                 }
-            }
-            if (key_display) {
-                int background = new Color(255, 255, 255, 50).getRGB();
-                int color = new Color(0, 0, 0, base_timehelper.integer_time).getRGB();
-                Options options = mc.options;
-                Render2DUtil.drawRect(stack, _x_ + 1 + 20, _y_, 20, 20, options.keyUp.isDown() ? color : background);
-                Render2DUtil.drawRect(stack, _x_ + 20 + 1, _y_ + 20 + 1, 20, 20, options.keyDown.isDown() ? color : background);
-                Render2DUtil.drawRect(stack, _x_, _y_ + 20 + 1, 20, 20, options.keyLeft.isDown() ? color : background);
-                Render2DUtil.drawRect(stack, _x_ + 40 + 2, _y_ + 20 + 1, 20, 20, options.keyRight.isDown() ? color : background);
-                Render2DUtil.drawRect(stack, _x_ + 1, _y_ + 40 + 2 + 2, 61, 15, options.keyJump.isDown() ? color : background);
             }
         }
     }

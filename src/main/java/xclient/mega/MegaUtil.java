@@ -240,6 +240,8 @@ public class MegaUtil {
         set(Config.background, Textures.background);
         set(Config.key_x, Main._x_);
         set(Config.key_y, Main._y_);
+        set(Config.key_scale, Main.key_scale);
+        set(Config.quickly_bow, Main.quickly_bow);
     }
 
     public static void read() {
@@ -272,6 +274,8 @@ public class MegaUtil {
         Main.quickly_place = Config.quickly_place.get();
         Main._x_ = Config.key_x.get();
         Main._y_ = Config.key_y.get();
+        Main.key_scale = Config.key_scale.get();
+        Main.quickly_bow = Config.quickly_bow.get();
         Textures.background = Config.background.get();
     }
 
