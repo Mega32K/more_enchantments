@@ -13,12 +13,21 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
+import xclient.mega.YScreen;
 import xclient.mega.event.RenderEvent;
 
 import javax.annotation.Nullable;
@@ -53,8 +63,6 @@ public abstract class GameRendererMixin {
 
     @Shadow public abstract void pick(float p_109088_);
 
-    @Shadow protected abstract boolean shouldRenderBlockOutline();
-
     @Shadow @Final private Camera mainCamera;
 
     @Shadow private float renderDistance;
@@ -75,7 +83,13 @@ public abstract class GameRendererMixin {
 
     @Shadow private boolean renderHand;
 
-    @Shadow protected abstract void renderItemInHand(PoseStack p_109121_, Camera p_109122_, float p_109123_);
+    @Shadow private boolean panoramicMode;
+
+    @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
+
+    @Shadow @Final private RenderBuffers renderBuffers;
+
+    @Shadow private boolean renderBlockOutline;
 
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)
     private void hurtEffect(PoseStack p_109118_, float p_109119_, CallbackInfo ci) {
@@ -245,5 +259,72 @@ public abstract class GameRendererMixin {
 
         this.minecraft.getProfiler().pop();
     }
+    /**
+     * @author mega
+     * @reason dner
+     */
+    @Overwrite
+    private void renderItemInHand(PoseStack p_109121_, Camera p_109122_, float p_109123_) {
+        if (!this.panoramicMode) {
+            this.resetProjectionMatrix(this.getProjectionMatrix(this.getFov(p_109122_, p_109123_, false)));
+            PoseStack.Pose posestack$pose = p_109121_.last();
+            posestack$pose.pose().setIdentity();
+            posestack$pose.normal().setIdentity();
+            p_109121_.pushPose();
+            this.bobHurt(p_109121_, p_109123_);
+            if (this.minecraft.options.bobView) {
+                this.bobView(p_109121_, p_109123_);
+            }
+
+            boolean flag = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
+            if (this.minecraft.options.getCameraType().isFirstPerson() && !flag && !this.minecraft.options.hideGui && (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || YScreen.display_players)) {
+                this.lightTexture.turnOnLightLayer();
+                this.itemInHandRenderer.renderHandsWithItems(p_109123_, p_109121_, this.renderBuffers.bufferSource(), this.minecraft.player, this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, p_109123_));
+                this.lightTexture.turnOffLightLayer();
+            }
+
+            p_109121_.popPose();
+            if (this.minecraft.options.getCameraType().isFirstPerson() && !flag) {
+                ScreenEffectRenderer.renderScreenEffect(this.minecraft, p_109121_);
+                this.bobHurt(p_109121_, p_109123_);
+            }
+
+            if (this.minecraft.options.bobView) {
+                this.bobView(p_109121_, p_109123_);
+            }
+
+        }
+    }
+    /**
+     * @author mega
+     * @reason dner
+     */
+    @Overwrite
+    private boolean shouldRenderBlockOutline() {
+        if (!this.renderBlockOutline) {
+            return false;
+        } else {
+            Entity entity = this.minecraft.getCameraEntity();
+            boolean flag = entity instanceof Player && !this.minecraft.options.hideGui;
+            if (flag && !((Player)entity).getAbilities().mayBuild) {
+                ItemStack itemstack = ((LivingEntity)entity).getMainHandItem();
+                HitResult hitresult = this.minecraft.hitResult;
+                if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK) {
+                    BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
+                    BlockState blockstate = this.minecraft.level.getBlockState(blockpos);
+                    if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR || YScreen.display_players) {
+                        flag = blockstate.getMenuProvider(this.minecraft.level, blockpos) != null;
+                    } else {
+                        BlockInWorld blockinworld = new BlockInWorld(this.minecraft.level, blockpos, false);
+                        Registry<Block> registry = this.minecraft.level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY);
+                        flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack.hasAdventureModePlaceTagForBlock(registry, blockinworld));
+                    }
+                }
+            }
+
+            return flag;
+        }
+    }
+
 
 }

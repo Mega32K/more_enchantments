@@ -14,6 +14,7 @@
     "ServerLevelMixin"
   ],
   "client": [
+    "AbstractClientPlayerMixin",
     "AbstractWidgetMixin",
     "ClientLevelMixin",
     "EntityRenderDispatcherMixin",
@@ -25,6 +26,7 @@
     "IAbstractWidget",
     "IButton",
     "IImageButton",
+    "LoadingOverlayMixin",
     "MA",
     "MinecraftMixin",
     "MPGMMixin",

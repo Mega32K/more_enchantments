@@ -78,8 +78,7 @@
   "dimension_banning.command.had" : "已在封禁列表中",
 
   "key.message" : "Open/Close EditScreen",
-  "key.invsee" : "查看玩家背包",
-  "key.invsee_end" : "查看玩家末影箱",
+  "key.y" : "Open/Close CameraScreen",
   "key.ka" : "Super KillAura",
   "key.info" : "显示信息",
   "key.category.x_client" : "The X"

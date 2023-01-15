@@ -82,5 +82,6 @@
   "key.auto" : "Auto Attack",
   "key.ka" : "Super KillAura",
   "key.info" : "Display Info",
-  "key.message" : "Open/Close EditScreen"
+  "key.message" : "Open/Close EditScreen",
+  "key.y" : "Open/Close CameraScreen"
 }

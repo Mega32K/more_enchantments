@@ -14,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.awt.*;
 import java.util.List;
 
 public class HudUtils {
@@ -32,13 +33,12 @@ public class HudUtils {
 
     public static void drawProgressBar(PoseStack stack, int x, int y, int width, int height, float percent, float alpha) {
         int i = Mth.ceil((float) (width - 2) * percent);
-        int j = Math.round(alpha * 255.0F);
-        int k = FastColor.ARGB32.color(j, 255, 255, 255);
-        fill(stack, x + 2, y + 2, x + i, y + height - 2, k);
-        fill(stack, x + 1, y, x + width - 1, y + 1, k);
-        fill(stack, x + 1, y + height, x + width - 1, y + height - 1, k);
-        fill(stack, x, y, x + 1, y + height, k);
-        fill(stack, x + width, y, x + width - 1, y + height, k);
+        int k = new Color(47, 94, 133, 150).getRGB();
+        Render2DUtil.drawRect(stack, x + 2, y + 2, x + i, y + height - 2, k);
+        Render2DUtil.drawRect(stack, x + 1, y, x + width - 1, y + 1, k);
+        Render2DUtil.drawRect(stack, x + 1, y + height, x + width - 1, y + height - 1, k);
+        Render2DUtil.drawRect(stack, x, y, x + 1, y + height, k);
+        Render2DUtil.drawRect(stack, x + width, y, x + width - 1, y + height, k);
     }
 
     public static void fill(PoseStack p_96183_, int i, int i1, int i2, int i3, int k) {

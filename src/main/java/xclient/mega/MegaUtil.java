@@ -17,6 +17,8 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import org.checkerframework.checker.units.qual.C;
+import xclient.mega.utils.Textures;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -235,6 +237,9 @@ public class MegaUtil {
         set(Config.dner, Main.dner);
         set(Config.quickly_place, Main.quickly_place);
         set(Config.key_display, Main.key_display);
+        set(Config.background, Textures.background);
+        set(Config.key_x, Main._x_);
+        set(Config.key_y, Main._y_);
     }
 
     public static void read() {
@@ -265,6 +270,9 @@ public class MegaUtil {
         Main.dner = Config.dner.get();
         Main.key_display = Config.key_display.get();
         Main.quickly_place = Config.quickly_place.get();
+        Main._x_ = Config.key_x.get();
+        Main._y_ = Config.key_y.get();
+        Textures.background = Config.background.get();
     }
 
     public static boolean hasTexture(String location) {

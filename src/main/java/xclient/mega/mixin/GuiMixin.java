@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
+import xclient.mega.YScreen;
 import xclient.mega.utils.Textures;
 
 import javax.annotation.Nullable;
@@ -159,7 +160,7 @@ public abstract class GuiMixin extends GuiComponent {
             this.renderPortalOverlay(f2);
         }
 
-        if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
+        if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR || YScreen.display_players) {
             this.spectatorGui.renderHotbar(p_93031_);
         } else if (!this.minecraft.options.hideGui) {
             this.renderHotbar(p_93032_, p_93031_);
@@ -191,7 +192,7 @@ public abstract class GuiMixin extends GuiComponent {
                 this.renderExperienceBar(p_93031_, i);
             }
 
-            if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
+            if (this.minecraft.options.heldItemTooltips && (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || YScreen.display_players)) {
                 this.renderSelectedItemName(p_93031_);
             } else if (this.minecraft.player.isSpectator()) {
                 this.spectatorGui.renderTooltip(p_93031_);

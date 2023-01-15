@@ -2,13 +2,13 @@ package xclient.mega;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
@@ -17,11 +17,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,8 +42,8 @@ import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.TimeHelper;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 @Mod("x_client")
 public class Main {
@@ -91,6 +92,8 @@ public class Main {
     public static Module<Float> SUPER_KILL_AURA$RANGE;
     public static Module<Boolean> SUPER_KILL_AURA$ATTACK_PLAYER;
 
+    public static List<Module<Component>> PLAYER_CAMERA;
+
     public static KeyMapping DISPLAY_INFO =  new KeyMapping("key.info",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
@@ -104,11 +107,11 @@ public class Main {
             GLFW.GLFW_KEY_J,
             "key.category.x_client");
 
-    public static KeyMapping INVSEE =  new KeyMapping("key.invsee",
+    public static KeyMapping OPEN2 =  new KeyMapping("key.y",
             KeyConflictContext.IN_GAME,
             KeyModifier.CONTROL,
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_I,
+            GLFW.GLFW_KEY_Y,
             "key.category.x_client");
 
 
@@ -123,16 +126,31 @@ public class Main {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
         MinecraftForge.EVENT_BUS.register(this);
         Networking.registerMessage();
-        registerKey(DISPLAY_INFO, OPEN);
+        registerKey(DISPLAY_INFO, OPEN, OPEN2);
         setModules();
         if (base_timehelper == null)
             base_timehelper = new TimeHelper(20, 160);
+        if (timeHelper == null)
+            timeHelper = new TimeHelper(10, 170);
         Main.instance = this;
+        MegaUtil.read();
+    }
+
+    public static TimeHelper timeHelper;
+
+    public static void setPlayerCamera(Level level) {
+        setModules();
+        PLAYER_CAMERA = new ArrayList<>();
+        for (Player player : level.players()) {
+            Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2 ,130, timeHelper.integer_time, timeHelper.integer_time));
+            PLAYER_CAMERA.add(player_camera);
+        }
     }
 
     public static void setModules() {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
+        Module.every.clear();
         CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS);
         AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setLeft((d -> auto_attack = !auto_attack));
         ENABLE_HURT_EFFECT = new Module<>("Hurt Effect", enableHurtEffect, false, RainbowFont.NORMAL).setLeft((d -> enableHurtEffect = !enableHurtEffect));
@@ -174,11 +192,25 @@ public class Main {
         QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setLeft(d -> quickly_place = !quickly_place);
         KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setLeft(d -> key_display = !key_display);
 
+        YScreen.OPEN_INVENTORY = new Module<>("Open Inv").setLeft(b -> {
+            Entity entity = Minecraft.instance.cameraEntity;
+            if (YScreen.display_players) {
+                if (entity instanceof Player player) {
+                    Minecraft.getInstance().tutorial.onOpenInventory();
+                    Minecraft.getInstance().setScreen(new InventoryScreen(player));
+                }
+            }
+        }).unaddToList();
+        YScreen.RETURN_LOCAL = new Module<>("Return Local").setLeft(b -> Minecraft.getInstance().cameraEntity = Minecraft.getInstance().player).unaddToList();
     }
 
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT)
     public static class TickKeys {
+        @SubscribeEvent
+        public static void onLoggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+            MegaUtil.writeXCLIENT();
+        }
 
         @SubscribeEvent
         public static void input(InputEvent.KeyInputEvent event) {
@@ -192,8 +224,9 @@ public class Main {
         @SubscribeEvent
         public static void playerUpdate(TickEvent.PlayerTickEvent event) {
             if (event.side.isClient() && event.player instanceof LocalPlayer) {
-                if (sprint)
+                if (sprint) {
                     event.player.setSprinting(true);
+                }
             }
         }
 
@@ -210,17 +243,16 @@ public class Main {
         public static void renderUpdate(TickEvent.RenderTickEvent event){
             if (quickly_place)
                 Minecraft.getInstance().rightClickDelay = 0;
-            //Minecraft.getInstance().getWindow().setTitle("X-Client | " + Main.version);
+            Minecraft.getInstance().getWindow().setTitle("X-Client | " + Main.version);
         }
 
         @SubscribeEvent
         public static void onKey(InputEvent.KeyInputEvent event) {
             Minecraft mc = Minecraft.getInstance();
-            Entity point = mc.crosshairPickEntity;
-
-            if (OPEN.consumeClick()) {
+            if (OPEN.consumeClick())
                 Minecraft.getInstance().setScreen(new XScreen());
-            }
+            if (OPEN2.consumeClick())
+                Minecraft.getInstance().setScreen(new YScreen());
             if (mc.player != null) {
                 Abilities abilities = new Abilities();
                 abilities.mayfly = true;
@@ -232,7 +264,7 @@ public class Main {
 
         @SubscribeEvent
         public static void clientTick(TickEvent.ClientTickEvent event) {
-            client_ticks++;
+            client_ticks++ ;
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
             Entity point = mc.crosshairPickEntity;
@@ -244,7 +276,7 @@ public class Main {
                     player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
                 }
                 if (client_ticks % 20 == 0) {
-                    if (no_fall && player.fallDistance > 0.5F)
+                    if (no_fall && player.fallDistance <= .5F && player.fallDistance > .2F)
                         player.connection.send(new ServerboundMovePlayerPacket.StatusOnly(true));
                 }
                 if (superKillAura && client_ticks % 20 == 0) {
@@ -291,7 +323,7 @@ public class Main {
                     }
                 }
             int x = 0; int y = 0;
-            if (enable_display_info && !(mc.screen instanceof XScreen)) {
+            if (enable_display_info && !(mc.screen instanceof XScreen) && !YScreen.display_players) {
                 for (Module<?> module :ModuleManager.modules) {
                     module.render(stack, x, y, false);
                     y+=11;
@@ -308,10 +340,5 @@ public class Main {
                 Render2DUtil.drawRect(stack, _x_ + 1, _y_ + 40 + 2 + 2, 61, 15, options.keyJump.isDown() ? color : background);
             }
         }
-    }
-
-    @SubscribeEvent
-    public void writeList(ClientPlayerNetworkEvent.LoggedInEvent event) {
-        MegaUtil.read();
     }
 }

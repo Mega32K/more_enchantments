@@ -3,6 +3,8 @@ package xclient.mega.mod;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import xclient.mega.Main;
 import xclient.mega.MegaUtil;
 import xclient.mega.utils.ColorPutter;
@@ -11,15 +13,18 @@ import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.Vec2d;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Module<T> {
+    public static List<Module<?>> every = new ArrayList<>();
     private String name;
     public Minecraft mc;
     public T value;
     public Font font;
-    public Vec2d color = new Vec2d(0 ,0);
+    public Color color;
     public ModuleTodo left;
     public ModuleTodo right;
     public int x;
@@ -38,9 +43,11 @@ public class Module<T> {
         this.value = value;
         this.mc = Minecraft.getInstance();
         ModuleManager.addModule(this);
+        every.add(this);
     }
 
     static void saveInfo() {
+        MegaUtil.read();
         MegaUtil.writeXCLIENT();
     }
 
@@ -53,6 +60,7 @@ public class Module<T> {
     }
 
     public Module<T> setLeft(ModuleTodo left) {
+        System.out.println(getInfo() + " setup left");
         this.left = left;
         return this;
     }
@@ -90,6 +98,8 @@ public class Module<T> {
     }
 
     public String getInfo() {
+        if (value instanceof Component component)
+            return getName() + (value != null ? ":"+component.getString() : "");
         return getName() + (value != null ? ":"+value : "");
     }
 
@@ -103,7 +113,7 @@ public class Module<T> {
         return this;
     }
 
-    public Module<T> setColor(Vec2d color) {
+    public Module<T> setColor(Color color) {
         this.color = color;
         return this;
     }
@@ -124,7 +134,8 @@ public class Module<T> {
         int color2 = new Color(0, 0, 0, Main.instance != null ? Main.base_timehelper.integer_time : 150).getRGB();
         this.x = x;
         this.y = y;
-        Render2DUtil.drawRect(stack, x, y, (int) (width*1.5F), height+1, isMouseOver ? color2 : color);
+        Render2DUtil.drawRect(stack, x, y, (int) (width*1.5F), height+1, isMouseOver ? (this.color != null ? this.color.getRGB() : color2) : color);
+
         this.font.drawShadow(stack, getInfo(), x, y, RendererUtils.WHITE);
         if (width == 0)
             width = font.width(getInfo());

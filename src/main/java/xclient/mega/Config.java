@@ -21,6 +21,8 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<List<String>> DIMENSION_BANNED_LIST;
     public static ForgeConfigSpec.ConfigValue<List<String>> SPECIAL_EVENTS_BANNED_LIST;
 
+    public static ForgeConfigSpec.ConfigValue<Integer> background;
+
     public static ForgeConfigSpec.ConfigValue<Float> killaura_range;
     public static ForgeConfigSpec.ConfigValue<Boolean> killaura_attackPlayer;
     public static ForgeConfigSpec.ConfigValue<Boolean> auto_attack;
@@ -36,6 +38,9 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Boolean> dner;
     public static ForgeConfigSpec.ConfigValue<Boolean> quickly_place;
     public static ForgeConfigSpec.ConfigValue<Boolean> key_display;
+
+    public static ForgeConfigSpec.ConfigValue<Integer> key_x;
+    public static ForgeConfigSpec.ConfigValue<Integer> key_y;
 
     static {
         ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -72,6 +77,9 @@ public class Config {
         dner = COMMON_BUILDER.define("dner", false);
         key_display = COMMON_BUILDER.define("key_display", false);
         quickly_place = COMMON_BUILDER.define("quickly_place", false);
+        background = COMMON_BUILDER.define("background index", 1);
+        key_x = COMMON_BUILDER.define("key x", 3);
+        key_y = COMMON_BUILDER.define("key y", 70);
         COMMON_BUILDER.pop();
         COMMON_CONFIG = COMMON_BUILDER.build();
     }
