@@ -309,7 +309,6 @@ public class Main {
         public static void renderTick(RenderEvent event) {
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
-            //Entity point = mc.crosshairPickEntity;
             Entity toWatch = xclient.mega.utils.MegaUtil.getEntityToWatch(20, player);
             Font font = mc.font;
             PoseStack stack = new PoseStack();

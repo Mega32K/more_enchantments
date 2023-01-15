@@ -60,7 +60,6 @@ public class Module<T> {
     }
 
     public Module<T> setLeft(ModuleTodo left) {
-        System.out.println(getInfo() + " setup left");
         this.left = left;
         return this;
     }
@@ -76,17 +75,19 @@ public class Module<T> {
     }
 
     public void left() {
-        if (left != null)
+        if (left != null) {
             left.run(this);
+            System.out.println(getInfo() + " run");
+        }
         else System.out.println(getName() + " left module is NULL!");
-        saveInfo();
+
     }
 
     public void right() {
         if (right != null)
             right.run(this);
         else System.out.println(getName() + " right module is NULL!");
-        saveInfo();
+
     }
 
     public String getName() {

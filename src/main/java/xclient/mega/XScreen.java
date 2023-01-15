@@ -25,20 +25,6 @@ public class XScreen extends Screen implements IScreenClick{
         return x >= module.x && y >= module.y && x < module.x + module.width && y < module.y + module.height;
     }
 
-    public void click(double x, double y, int code) {
-        for (Module<?> module : Module.every) {
-            if (XScreen.isInRange(module, (int) x, (int) y)) {
-                if (code == 0) {
-                    module.left();
-                }
-                if (code == 1) {
-                    module.right();
-                }
-            }
-        }
-        Main.setModules();
-    }
-
     @Override
     public boolean mouseClicked(double x, double y, int p_94697_) {
         click(x, y, p_94697_);
