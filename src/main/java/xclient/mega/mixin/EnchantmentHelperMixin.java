@@ -1,6 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +9,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import xclient.mega.MegaUtil;
 
 import javax.annotation.Nullable;
 

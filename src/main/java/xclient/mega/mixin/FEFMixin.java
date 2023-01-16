@@ -17,8 +17,7 @@ public class FEFMixin {
      * @reason w
      */
     @Overwrite
-    public static int onArrowLoose(ItemStack stack, Level level, Player player, int charge, boolean hasAmmo)
-    {
+    public static int onArrowLoose(ItemStack stack, Level level, Player player, int charge, boolean hasAmmo) {
         if (Main.quickly_bow)
             return 200;
         ArrowLooseEvent event = new ArrowLooseEvent(player, stack, level, charge, hasAmmo);

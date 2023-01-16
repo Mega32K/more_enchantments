@@ -34,7 +34,7 @@ public class SolidColorButton extends Button {
     }
 
     public static SolidColorButton getBlack(int x, int y, int width, int height, Component component, OnPress onPress) {
-        return new SolidColorButton(x, y, width, height, component, onPress, 0 ,0 ,0, 1);
+        return new SolidColorButton(x, y, width, height, component, onPress, 0, 0, 0, 1);
     }
 
     public void setTexture(ResourceLocation location) {

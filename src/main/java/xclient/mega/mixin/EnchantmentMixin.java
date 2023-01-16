@@ -1,6 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
@@ -14,6 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xclient.mega.MegaUtil;
 
 @Mixin(value = Enchantment.class, priority = Integer.MAX_VALUE)
 public abstract class EnchantmentMixin extends net.minecraftforge.registries.ForgeRegistryEntry<Enchantment> {

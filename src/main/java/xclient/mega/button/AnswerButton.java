@@ -40,7 +40,7 @@ public class AnswerButton extends ImageButton {
 
     @Override
     public void onClick(double p_93634_, double p_93635_) {
-        click = click > 0 ? 0 : click+1;
+        click = click > 0 ? 0 : click + 1;
     }
 
     @Override

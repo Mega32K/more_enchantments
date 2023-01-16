@@ -1,6 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -9,14 +8,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xclient.mega.MegaUtil;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
+    @Shadow(remap = false)
+    private boolean isAddedToWorld;
+
     @Shadow
     public abstract EntityType<?> getType();
-
-
-    @Shadow(remap = false) private boolean isAddedToWorld;
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     public void tick(CallbackInfo ci) {

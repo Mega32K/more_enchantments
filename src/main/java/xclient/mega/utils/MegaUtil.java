@@ -14,7 +14,7 @@ public class MegaUtil {
         if (player == null)
             return null;
         List<Entity> entities = new ArrayList<>();
-        for (int dis = 0;dis < level * 2;dis += 2) {
+        for (int dis = 0; dis < level * 2; dis += 2) {
             AABB aabb = player.getBoundingBox().inflate(2, 2, 2);
             Vec3 vec = player.getLookAngle();
             vec = vec.normalize();
@@ -29,7 +29,7 @@ public class MegaUtil {
         if (player == null)
             return null;
         Entity entity = null;
-        for (int dis = 0;dis < level * 2;dis += 2) {
+        for (int dis = 0; dis < level * 2; dis += 2) {
             AABB aabb = player.getBoundingBox();
             Vec3 vec = player.getLookAngle();
             vec = vec.normalize();
@@ -37,7 +37,7 @@ public class MegaUtil {
             List<Entity> list = player.level.getEntities(player, aabb);
             float distance = level;
             for (Entity curEntity : list) {
-                float curDist = curEntity.distanceTo((Entity)player);
+                float curDist = curEntity.distanceTo(player);
                 if (curDist < distance) {
                     entity = curEntity;
                     distance = curDist;

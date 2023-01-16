@@ -12,8 +12,10 @@ import java.util.Map;
 public interface FM {
     @Accessor("fontSets")
     Map<ResourceLocation, FontSet> fontSets();
+
     @Accessor("renames")
     Map<ResourceLocation, ResourceLocation> renames();
+
     @Accessor("missingFontSet")
     FontSet fs();
 }

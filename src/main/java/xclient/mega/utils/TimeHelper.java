@@ -7,16 +7,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.function.LongSupplier;
 
 public class TimeHelper {
+    public static LongSupplier timeSource = System::nanoTime;
     public int min_i;
     public int max_i;
     public double min_d;
     public double max_d;
+    public int integer_time;
+    public double double_time;
+    public boolean integer_logic;
+    public boolean double_logic;
     public TimeHelper(int min, int max) {
         min_i = min;
         max_i = max;
         MinecraftForge.EVENT_BUS.register(this);
     }
-
     public TimeHelper(double min, double max) {
         min_d = min;
         max_d = max;
@@ -26,9 +30,6 @@ public class TimeHelper {
     public TimeHelper() {
         MinecraftForge.EVENT_BUS.register(this);
     }
-    public int integer_time;
-    public double double_time;
-    public static LongSupplier timeSource = System::nanoTime;
 
     public static long millis() {
         return nanos() / 1000000L;
@@ -38,12 +39,13 @@ public class TimeHelper {
         return timeSource.getAsLong();
     }
 
-    public boolean integer_logic;
-    public boolean double_logic;
+    public boolean aSecond() {
+        return integer_time % 100 == 0;
+    }
 
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event) {
-        if (max_i > min_i) { 
+        if (max_i > min_i) {
             if (!integer_logic) {
                 if (integer_time > min_i)
                     integer_time--;

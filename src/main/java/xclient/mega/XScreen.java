@@ -10,27 +10,30 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xclient.mega.mod.Module;
-import xclient.mega.mod.ModuleManager;
+import xclient.mega.mod.bigmodule.BigModuleBase;
 import xclient.mega.utils.Vec2d;
 
 @Mod.EventBusSubscriber
-public class XScreen extends Screen implements IScreenClick{
+public class XScreen extends Screen implements IScreenClick {
 
+    public static int mouseX;
+    public static int mouseY;
     protected XScreen() {
         super(new TextComponent(""));
     }
 
-    public static int mouseX;
-    public static int mouseY;
+    public static boolean isInRange(Module<?> module, int x, int y) {
+        return x >= module.x && y >= module.y && x < module.x + module.width && y < module.y + module.height;
+    }
 
-    
+    @SubscribeEvent
+    public static void loggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        MegaUtil.writeXCLIENT();
+    }
+
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    public static boolean isInRange(Module<?> module, int x, int y) {
-        return x >= module.x && y >= module.y && x < module.x + module.width && y < module.y + module.height;
     }
 
     @Override
@@ -42,6 +45,10 @@ public class XScreen extends Screen implements IScreenClick{
 
     @Override
     public boolean mouseReleased(double p_94722_, double p_94723_, int p_94724_) {
+        for (BigModuleBase bm : BigModuleBase.every) {
+            if (bm.isInRange_asModule())
+                bm.release((int) p_94722_, (int) p_94723_);
+        }
         Main.KEY_DISPLAY_BM.release((int) p_94722_, (int) p_94723_);
         return super.mouseReleased(p_94722_, p_94723_, p_94724_);
     }
@@ -51,6 +58,12 @@ public class XScreen extends Screen implements IScreenClick{
         if (Main.KEY_DISPLAY_BM.isInRange((int) p_94699_, (int) p_94700_, new Vec2d(Main._x_, Main._y_), new Vec2d(Main._x_ + 63, Main._y_ + 61))) {
             Main.KEY_DISPLAY_BM.startPress((int) p_94699_, (int) p_94700_);
         }
+        for (BigModuleBase bm : BigModuleBase.every) {
+            if (bm.isInRange_asModule() || bm.isPressing) {
+                bm.isPressing = true;
+                bm.update(bm);
+            }
+        }
         return super.mouseDragged(p_94699_, p_94700_, p_94701_, p_94702_, p_94703_);
     }
 
@@ -58,23 +71,10 @@ public class XScreen extends Screen implements IScreenClick{
     public void render(PoseStack stack, int mx, int my, float pt) {
         mouseX = mx;
         mouseY = my;
-        int x=0,y=0;
-        for (Module<?> module : ModuleManager.modules) {
-            if (module.getFather() == null)
-                module.render(stack, x, y, isInRange(module, mx, my));
-            y += 11;
-            if (y >= 110) {
-                x += 130;
-                y = 0;
-            }
-        }
-        y+=15;
-        if (Main.killaura_displayInfo) {
-            for (Module<?> module : ModuleManager.modules) {
-                if (module.getFather() == Main.SUPER_KILL_AURA) {
-                    module.render(stack, x, y, isInRange(module, mx, my));
-                    y += 11;
-                }
+        Main.CLIENT.render(stack, 0, 0, isInRange(Main.CLIENT, mx, my));
+        for (BigModuleBase bm : BigModuleBase.every) {
+            if (bm.asModule) {
+                bm.render(stack, bm.pos.x, bm.pos.y);
             }
         }
         super.render(stack, mx, my, pt);
@@ -88,19 +88,20 @@ public class XScreen extends Screen implements IScreenClick{
     }
 
     @Override
+    public void renderBackground(PoseStack p_96557_) {
+        super.renderBackground(p_96557_);
+    }
+
+    @Override
     public Component getTitle() {
         return new TextComponent("The X Screen").withStyle(ChatFormatting.BLUE);
     }
 
     @Override
     protected void init() {
+        MegaUtil.read();
         minecraft = Minecraft.getInstance();
         Main.setModules();
         super.init();
-    }
-
-    @SubscribeEvent
-    public static void loggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
-        MegaUtil.writeXCLIENT();
     }
 }

@@ -13,11 +13,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.checkerframework.checker.units.qual.C;
 import xclient.mega.utils.Textures;
 
 import java.util.ArrayList;
@@ -184,7 +182,7 @@ public class MegaUtil {
     }
 
     public static String getDimensionName(CapabilityProvider<Level> o) {
-        return ((Level)o).dimensionType().toString();
+        return ((Level) o).dimensionType().toString();
     }
 
     public static String getEnchantmentSimpleNameWithRegistryPath(ForgeRegistryEntry<Enchantment> o) {
@@ -222,6 +220,8 @@ public class MegaUtil {
     }
 
     public static void writeXCLIENT() {
+        if (!Main.hasRead)
+            return;
         set(Config.killaura_range, Main.killaura_range);
         set(Config.killaura_attackPlayer, Main.killaura_attackPlayer);
         set(Config.auto_attack, Main.auto_attack);
@@ -277,6 +277,7 @@ public class MegaUtil {
         Main.key_scale = Config.key_scale.get();
         Main.quickly_bow = Config.quickly_bow.get();
         Textures.background = Config.background.get();
+        Main.hasRead = true;
     }
 
     public static boolean hasTexture(String location) {

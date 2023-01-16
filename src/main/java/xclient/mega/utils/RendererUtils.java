@@ -16,9 +16,16 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
 
 public class RendererUtils {
-    Minecraft mc = Minecraft.getInstance();
     public static int WHITE = 0xFFFFFFFF;
+    Minecraft mc = Minecraft.getInstance();
 
+    public static double getRandom(double min, double max) {
+        return Math.random() * (max - min) - (max - min) / 2;
+    }
+
+    public static double getRandom(double length) {
+        return Math.random() * length - length / 2;
+    }
 
     public void drawItemOnScreen(int x, int y, ItemStack itemStack) {
         drawItemOnScreen(x, y, itemStack, new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), 1);
@@ -69,14 +76,6 @@ public class RendererUtils {
 
         posestack.popPose();
         RenderSystem.applyModelViewMatrix();
-    }
-
-    public static double getRandom(double min, double max) {
-        return Math.random() * (max - min) - (max - min) / 2;
-    }
-
-    public static double getRandom(double length) {
-        return Math.random() * length - length / 2;
     }
 
 }

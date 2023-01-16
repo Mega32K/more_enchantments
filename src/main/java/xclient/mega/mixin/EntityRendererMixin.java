@@ -13,7 +13,7 @@ import xclient.mega.Main;
 @Mixin(EntityRenderer.class)
 public class EntityRendererMixin {
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
-    public<T extends Entity> void sr(T p_114491_, Frustum p_114492_, double p_114493_, double p_114494_, double p_114495_, CallbackInfoReturnable<Boolean> cir) {
+    public <T extends Entity> void sr(T p_114491_, Frustum p_114492_, double p_114493_, double p_114494_, double p_114495_, CallbackInfoReturnable<Boolean> cir) {
         if (!p_114491_.shouldRender(p_114493_, p_114494_, p_114495_)) {
             cir.setReturnValue(false);
         } else if (Main.renderPlayerOutline && p_114491_ instanceof Player)

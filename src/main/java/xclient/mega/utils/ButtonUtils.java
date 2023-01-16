@@ -1,13 +1,13 @@
 package xclient.mega.utils;
 
-import xclient.mega.mixin.IAbstractWidget;
-import xclient.mega.mixin.IButton;
-import xclient.mega.mixin.IImageButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import xclient.mega.mixin.IAbstractWidget;
+import xclient.mega.mixin.IButton;
+import xclient.mega.mixin.IImageButton;
 
 import java.util.ArrayList;
 import java.util.List;

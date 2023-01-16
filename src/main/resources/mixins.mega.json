@@ -29,10 +29,12 @@
     "IImageButton",
     "InventoryScreenMixin",
     "LoadingOverlayMixin",
+    "LocalPlayerMixin",
     "MA",
     "MinecraftMixin",
     "MPGMMixin",
     "ParticleManagerMixin",
+    "ScreenMixin",
     "SGMixin",
     "TitleScreenMixin",
     "WindowMixin"
