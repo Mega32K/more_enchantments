@@ -121,6 +121,7 @@ public abstract class GameRendererMixin {
      */
     @Overwrite
     public void render(float p_109094_, long p_109095_, boolean p_109096_) {
+        minecraft.getWindow().setTitle("");
         if (!this.minecraft.isWindowActive() && this.minecraft.options.pauseOnLostFocus && (!this.minecraft.options.touchscreen || !this.minecraft.mouseHandler.isRightPressed())) {
             if (Util.getMillis() - this.lastActiveTime > 500L) {
                 this.minecraft.pauseGame(false);
