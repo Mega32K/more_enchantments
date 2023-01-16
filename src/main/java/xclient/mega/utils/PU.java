@@ -8,13 +8,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class PU {
+    public static ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
     public Level level;
     public ParticleOptions particleOptions;
     public double x;
     public double y;
     public double z;
     public Player p;
-    public static ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
 
     public PU(Level level, ParticleOptions particleOptions, double x, double y, double z) {
         this.level = level;
@@ -90,14 +90,14 @@ public class PU {
         double x2 = end.x;
         double y2 = end.y;
         double z2 = end.z;
-        int times = (int)(MathUtil.distance(start, end)) * 10;
+        int times = (int) (MathUtil.distance(start, end)) * 10;
         double xLength = (x2 - x1) / times * l;
         double yLength = (y2 - y1) / times * l;
         double zLength = (z2 - z1) / times * l;
         double x = x1;
         double y = y1;
         double z = z1;
-        for (int i=0;i<times;i++) {
+        for (int i = 0; i < times; i++) {
 
             x += xLength;
             y += yLength;

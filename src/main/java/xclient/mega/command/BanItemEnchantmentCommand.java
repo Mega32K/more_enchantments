@@ -1,8 +1,5 @@
 package xclient.mega.command;
 
-import xclient.mega.CommandUtil;
-import xclient.mega.Config;
-import xclient.mega.MegaUtil;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
@@ -15,6 +12,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import xclient.mega.CommandUtil;
+import xclient.mega.Config;
+import xclient.mega.MegaUtil;
 
 @Mod.EventBusSubscriber
 public class BanItemEnchantmentCommand {

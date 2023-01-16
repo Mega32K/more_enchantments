@@ -35,20 +35,21 @@ import xclient.mega.event.RenderEvent;
 import xclient.mega.mod.Module;
 import xclient.mega.mod.ModuleManager;
 import xclient.mega.mod.bigmodule.BigModuleBase;
-import xclient.mega.mod.bigmodule.KeyDisplayBM;
+import xclient.mega.mod.bigmodule.type.KeyDisplayBM;
+import xclient.mega.mod.bigmodule.type.RenderBm;
 import xclient.mega.utils.RainbowFont;
 import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.TimeHelper;
+import xclient.mega.utils.Vec2d;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 @Mod("x_client")
 public class Main {
     public static String version = "V1.1";
+    public static boolean hasRead;
 
     public static Saver<Integer> GAMMA;
     public static TimeHelper base_timehelper;
@@ -76,6 +77,7 @@ public class Main {
     public static boolean quickly_place;
     public static boolean key_display;
     public static boolean quickly_bow;
+    public static boolean jumping;
 
     public static Module<?> CLIENT;
     public static Module<Boolean> AUTO_ATTACK;
@@ -92,6 +94,7 @@ public class Main {
     public static Module<Boolean> QUICKLY_PLACE;
     public static Module<Boolean> KEY_DISPLAY;
     public static Module<Boolean> QUICKLY_BOW;
+    public static Module<Boolean> JUMPING;
 
     public static Module<Float> SUPER_KILL_AURA$RANGE;
     public static Module<Boolean> SUPER_KILL_AURA$ATTACK_PLAYER;
@@ -100,33 +103,27 @@ public class Main {
 
     public static BigModuleBase KEY_DISPLAY_BM;
 
-    public static KeyMapping DISPLAY_INFO =  new KeyMapping("key.info",
+    public static KeyMapping DISPLAY_INFO = new KeyMapping("key.info",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_F9,
             "key.category.x_client");
 
-    public static KeyMapping OPEN =  new KeyMapping("key.message",
+    public static KeyMapping OPEN = new KeyMapping("key.message",
             KeyConflictContext.IN_GAME,
             KeyModifier.CONTROL,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_J,
             "key.category.x_client");
 
-    public static KeyMapping OPEN2 =  new KeyMapping("key.y",
+    public static KeyMapping OPEN2 = new KeyMapping("key.y",
             KeyConflictContext.IN_GAME,
             KeyModifier.CONTROL,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_Y,
             "key.category.x_client");
-
-
-    public static void registerKey(KeyMapping... keyMappings) {
-        for (KeyMapping key : keyMappings)
-            ClientRegistry.registerKeyBinding(key);
-    }
-
     public static Main instance = null;
+    public static TimeHelper timeHelper;
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
@@ -140,47 +137,48 @@ public class Main {
         if (timeHelper == null)
             timeHelper = new TimeHelper(10, 170);
         Main.instance = this;
-        MegaUtil.read();
     }
 
-    public static TimeHelper timeHelper;
+    public static void registerKey(KeyMapping... keyMappings) {
+        for (KeyMapping key : keyMappings)
+            ClientRegistry.registerKeyBinding(key);
+    }
 
-    public static void setPlayerCamera(Level level) {
+    public static void setPlayerCamera() {
         setModules();
         PLAYER_CAMERA = new ArrayList<>();
-        for (Player player : level.players()) {
-            Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2 ,130, timeHelper.integer_time, timeHelper.integer_time));
-            PLAYER_CAMERA.add(player_camera);
+        for (Player player : RenderBm.players) {
+            if (!player.isRemoved()) {
+                Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2, 130, timeHelper.integer_time, timeHelper.integer_time));
+                PLAYER_CAMERA.add(player_camera);
+            }
         }
     }
 
     public static void setBms() {
         KEY_DISPLAY_BM = new KeyDisplayBM();
+        BmMain.setBms();
     }
 
     public static void setModules() {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
         Module.every.clear();
-        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS);
-        AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setLeft((d -> auto_attack = !auto_attack));
-        ENABLE_HURT_EFFECT = new Module<>("Hurt Effect", enableHurtEffect, false, RainbowFont.NORMAL).setLeft((d -> enableHurtEffect = !enableHurtEffect));
+        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d -> BigModuleBase.every.forEach(bm -> {
+            bm.pos = new Vec2d(0, BigModuleBase.every.indexOf(bm) * 10 + 5);
+        }));
 
-        SUPER_KILL_AURA = new Module<>("Super KillAura", superKillAura, false, RainbowFont.NORMAL).setLeft((d -> superKillAura = !superKillAura)).setRight(d -> killaura_displayInfo = !killaura_displayInfo);
-        SUPER_KILL_AURA$RANGE = new Module<>("KillAura Range", killaura_range, false, RainbowFont.NORMAL).setLeft((d -> killaura_range += 0.5F)).setRight(d -> {
+        AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> auto_attack = !auto_attack));
+        SUPER_KILL_AURA = new Module<>("Super KillAura", superKillAura, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> superKillAura = !superKillAura)).setRight(d -> killaura_displayInfo = !killaura_displayInfo);
+        SUPER_KILL_AURA$RANGE = new Module<>("KillAura Range", killaura_range, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> killaura_range += 0.5F)).setRight(d -> {
             if (killaura_range > 0)
                 killaura_range -= 0.1F;
         }).setFather(SUPER_KILL_AURA);
-        SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer))
+        SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer))
                 .setFather(SUPER_KILL_AURA);
-        QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setLeft(d -> quickly_place = !quickly_place);
-        QUICKLY_BOW = new Module<>("Quickly Bow", quickly_bow, false, RainbowFont.NORMAL).setLeft(d -> quickly_bow = !quickly_bow);
+        QUICKLY_BOW = new Module<>("Quickly Bow", quickly_bow, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft(d -> quickly_bow = !quickly_bow);
 
-        REACH = new Module<>("Reach", reach_distance, false, RainbowFont.NORMAL).setLeft((d -> reach_distance += 0.1F)).setRight((d -> {
-            if (reach_distance > 0F)
-                reach_distance -= 0.1F;
-        }));
-        FLY = new Module<>("Fly", fly, false, RainbowFont.NORMAL).setLeft((d -> {
+        FLY = new Module<>("Fly", fly, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> {
             fly = !fly;
             Minecraft mc = Minecraft.getInstance();
             Abilities abilities = new Abilities();
@@ -190,19 +188,26 @@ public class Main {
                 mc.player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
             }
         }));
-        NO_FALL = new Module<>("No Fall", no_fall, false, RainbowFont.NORMAL).setLeft((d -> no_fall = !no_fall));
-        RESPAWN = new Module<>("Respawn", respawn, false, RainbowFont.NORMAL).setLeft((d -> respawn = !respawn));
-        SPRINT = new Module<>("Sprint", sprint, false, RainbowFont.NORMAL).setLeft((d -> sprint = !sprint));
-        RENDER_OUTLINE = new Module<>("Render Players Outline", renderPlayerOutline, false, RainbowFont.NORMAL).setLeft((d -> renderPlayerOutline = !renderPlayerOutline));
-        FULL_BRIGHT = new Module<>("Full Bright", full_bright, false, RainbowFont.NORMAL).setLeft((d -> {
+        NO_FALL = new Module<>("No Fall", no_fall, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> no_fall = !no_fall));
+        RESPAWN = new Module<>("Respawn", respawn, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> respawn = !respawn));
+        SPRINT = new Module<>("Sprint", sprint, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> sprint = !sprint));
+        REACH = new Module<>("Reach", reach_distance, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> reach_distance += 0.1F)).setRight((d -> {
+            if (reach_distance > 0F)
+                reach_distance -= 0.1F;
+        }));
+        QUICKLY_PLACE = new Module<>("Quickly Place", quickly_place, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setFather_Bm(BmMain.PLAYER).setLeft(d -> quickly_place = !quickly_place);
+
+        ENABLE_HURT_EFFECT = new Module<>("Hurt Effect", enableHurtEffect, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft((d -> enableHurtEffect = !enableHurtEffect));
+        RENDER_OUTLINE = new Module<>("Render Players Outline", renderPlayerOutline, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft((d -> renderPlayerOutline = !renderPlayerOutline));
+        FULL_BRIGHT = new Module<>("Full Bright", full_bright, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft((d -> {
             full_bright = !full_bright;
-            GAMMA = new Saver<>((int)Minecraft.getInstance().options.gamma);
+            GAMMA = new Saver<>((int) Minecraft.getInstance().options.gamma);
             if (full_bright) {
                 Minecraft.getInstance().options.gamma = 100D;
             } else Minecraft.getInstance().options.gamma = GAMMA.getV();
         }));
-        DISABLE_NEGATIVE_EFFECT_RENDERER = new Module<>("Disable NegativeEffect Rendering", dner, false, RainbowFont.NORMAL).setLeft((d -> dner = !dner));
-        KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setLeft(d -> key_display = !key_display);
+        DISABLE_NEGATIVE_EFFECT_RENDERER = new Module<>("Disable NegativeEffect Rendering", dner, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft((d -> dner = !dner));
+        KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft(d -> key_display = !key_display);
 
         YScreen.OPEN_INVENTORY = new Module<>("Open Inv").setLeft(b -> {
             Entity entity = Minecraft.instance.cameraEntity;
@@ -214,6 +219,7 @@ public class Main {
             }
         }).unaddToList();
         YScreen.RETURN_LOCAL = new Module<>("Return Local").setLeft(b -> Minecraft.getInstance().cameraEntity = Minecraft.getInstance().player).unaddToList();
+        BmMain.setBms();
     }
 
 
@@ -233,9 +239,11 @@ public class Main {
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT)
     public static class KeyEvents {
+        public static int client_ticks = 0;
+
         @SubscribeEvent
         public static void playerUpdate(TickEvent.PlayerTickEvent event) {
-            if (event.side.isClient() && event.player instanceof LocalPlayer) {
+            if (event.side.isClient() && event.player instanceof LocalPlayer localPlayer) {
                 if (sprint) {
                     event.player.setSprinting(true);
                 }
@@ -252,10 +260,9 @@ public class Main {
         }
 
         @SubscribeEvent
-        public static void renderUpdate(TickEvent.RenderTickEvent event){
+        public static void renderUpdate(TickEvent.RenderTickEvent event) {
             if (quickly_place)
                 Minecraft.getInstance().rightClickDelay = 0;
-            Minecraft.getInstance().getWindow().setTitle("X-Client | " + Main.version);
         }
 
         @SubscribeEvent
@@ -272,11 +279,9 @@ public class Main {
             }
         }
 
-        public static int client_ticks = 0;
-
         @SubscribeEvent
         public static void clientTick(TickEvent.ClientTickEvent event) {
-            client_ticks++ ;
+            client_ticks++;
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
             Entity point = mc.crosshairPickEntity;
@@ -294,7 +299,7 @@ public class Main {
                 if (superKillAura && client_ticks % 20 == 0) {
                     for (Entity entity : xclient.mega.utils.MegaUtil.getEntitiesToWatch(512, player)) {
                         if (entity instanceof LivingEntity livingEntity && point != player && !livingEntity.isDeadOrDying() && !livingEntity.isInvisible() && player.distanceTo(entity) <= killaura_range && livingEntity.deathTime <= 0) {
-                            if (mc.gameMode != null ) {
+                            if (mc.gameMode != null) {
                                 //noinspection ConstantConditions
                                 if (!killaura_attackPlayer || (killaura_attackPlayer && !(livingEntity instanceof Player)))
                                     mc.gameMode.attack(player, entity);
@@ -324,20 +329,21 @@ public class Main {
             Entity toWatch = xclient.mega.utils.MegaUtil.getEntityToWatch(20, player);
             Font font = mc.font;
             PoseStack stack = new PoseStack();
-                if (toWatch != null) {
-                    if (toWatch instanceof LivingEntity living_point)
-                        InventoryScreen.renderEntityInInventory(105, 100, 30, 45, 45, living_point);
-                    else font.drawShadow(stack, "No model", 105, 100, 0xFFFFFFFF);
-                    if (toWatch instanceof LivingEntity livingEntity) {
-                        font.drawShadow(stack, "Health:" + String.format("%.2f", livingEntity.getHealth()) + "/" + String.format("%.2f", livingEntity.getMaxHealth()), 105, (int) toWatch.getEyeHeight() * 5 + 118, RendererUtils.WHITE);
-                        font.drawShadow(stack, "MainHandItem:" + livingEntity.getMainHandItem().getDisplayName().getString(), 105, (int) toWatch.getEyeHeight() * 5 + 126, RendererUtils.WHITE);
-                    }
+            if (toWatch != null) {
+                if (toWatch instanceof LivingEntity living_point)
+                    InventoryScreen.renderEntityInInventory(105, 100, 30, 45, 45, living_point);
+                else font.drawShadow(stack, "No model", 105, 100, 0xFFFFFFFF);
+                if (toWatch instanceof LivingEntity livingEntity) {
+                    font.drawShadow(stack, "Health:" + String.format("%.2f", livingEntity.getHealth()) + "/" + String.format("%.2f", livingEntity.getMaxHealth()), 105, (int) toWatch.getEyeHeight() * 5 + 118, RendererUtils.WHITE);
+                    font.drawShadow(stack, "MainHandItem:" + livingEntity.getMainHandItem().getDisplayName().getString(), 105, (int) toWatch.getEyeHeight() * 5 + 126, RendererUtils.WHITE);
                 }
-            int x = 0; int y = 0;
+            }
+            int x = 0;
+            int y = 0;
             if (enable_display_info && !(mc.screen instanceof XScreen) && !YScreen.display_players) {
-                for (Module<?> module :ModuleManager.modules) {
+                for (Module<?> module : ModuleManager.modules) {
                     module.render(stack, x, y, false);
-                    y+=11;
+                    y += 11;
                 }
             }
         }

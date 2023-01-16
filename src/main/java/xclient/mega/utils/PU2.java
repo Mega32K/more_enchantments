@@ -64,7 +64,7 @@ public class PU2 {
                     rotate = 0;
             }
             value = 0;
-            for (int i=0;i<members;i++) {
+            for (int i = 0; i < members; i++) {
                 double x_ = MegaUtil.circleX(x, r * 3 + 4, rotate + value);
                 double z_ = MegaUtil.circleY(z, r * 3 + 4, rotate + value);
                 player.level.addParticle(options, x_, y, z_, 0, 0, 0);

@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import xclient.mega.Main;
+import xclient.mega.mod.bigmodule.BigModuleBase;
 import xclient.mega.utils.ColorPutter;
 import xclient.mega.utils.Render2DUtil;
 import xclient.mega.utils.RendererUtils;
@@ -17,7 +18,6 @@ import java.util.Set;
 
 public class Module<T> {
     public static List<Module<?>> every = new ArrayList<>();
-    private String name;
     public Minecraft mc;
     public T value;
     public Font font;
@@ -29,9 +29,10 @@ public class Module<T> {
     public int width;
     public int height;
     public boolean enableColorPutter;
-
     public Module<?> FatherModule = null;
     public Set<Module<?>> children = new HashSet<>();
+    private String name;
+    private BigModuleBase Father_Bm = null;
 
     public Module(String name, T value, boolean enableColorPutter, Font font) {
         this.font = font;
@@ -51,6 +52,10 @@ public class Module<T> {
         this(name, value, false);
     }
 
+    public Module(String name) {
+        this(name, null);
+    }
+
     public Module<T> setLeft(ModuleTodo left) {
         this.left = left;
         return this;
@@ -66,11 +71,23 @@ public class Module<T> {
         return this;
     }
 
+    public BigModuleBase getFather_Bm() {
+        return Father_Bm;
+    }
+
+    public Module<T> setFather_Bm(BigModuleBase father_Bm) {
+        Father_Bm = father_Bm;
+        return this;
+    }
+
+    public boolean sameBm(Object o) {
+        return getFather_Bm() != null && getFather_Bm().getClass().isInstance(o);
+    }
+
     public void left() {
         if (left != null) {
             left.run(this);
-        }
-        else System.out.println(getName() + " left module is NULL!");
+        } else System.out.println(getName() + " left module is NULL!");
 
     }
 
@@ -85,19 +102,19 @@ public class Module<T> {
         return enableColorPutter ? ColorPutter.rainbow(name) : name;
     }
 
+    public Module<T> setName(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getPos() {
         return "x:" + x + " y:" + y + " width:" + width + " height" + height;
     }
 
     public String getInfo() {
         if (value instanceof Component component)
-            return getName() + (value != null ? ":"+component.getString() : "");
-        return getName() + (value != null ? ":"+value : "");
-    }
-
-    public Module<T> setName(String name) {
-        this.name = name;
-        return this;
+            return getName() + (value != null ? ":" + component.getString() : "");
+        return getName() + (value != null ? ":" + value : "");
     }
 
     public Module<T> setFont(Font font) {
@@ -115,10 +132,6 @@ public class Module<T> {
         return this;
     }
 
-    public Module(String name) {
-        this(name, null);
-    }
-
     public void render(PoseStack stack, int x, int y, boolean isMouseOver) {
         if (value instanceof Float f)
             value = (T) Float.valueOf(String.format("%.2f", f));
@@ -126,18 +139,13 @@ public class Module<T> {
         int color2 = new Color(0, 0, 0, Main.instance != null ? Main.base_timehelper.integer_time : 150).getRGB();
         this.x = x;
         this.y = y;
-        Render2DUtil.drawRect(stack, x, y, (int) (width*1.5F), height+1, isMouseOver ? (this.color != null ? this.color.getRGB() : color2) : color);
+        Render2DUtil.drawRect(stack, x, y, (int) (width * 1.5F), height + 1, isMouseOver ? (this.color != null ? this.color.getRGB() : color2) : color);
 
         this.font.drawShadow(stack, getInfo(), x, y, RendererUtils.WHITE);
         if (width == 0)
             width = font.width(getInfo());
         if (height == 0)
             height = font.lineHeight;
-    }
-
-    public Module<T> setFather(Module<?> module) {
-        FatherModule = module;
-        return this;
     }
 
     public Module<?> addChild(Module<?> module) {
@@ -152,6 +160,11 @@ public class Module<T> {
 
     public Module<?> getFather() {
         return FatherModule;
+    }
+
+    public Module<T> setFather(Module<?> module) {
+        FatherModule = module;
+        return this;
     }
 
 }

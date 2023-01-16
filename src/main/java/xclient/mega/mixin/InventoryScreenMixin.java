@@ -2,7 +2,6 @@ package xclient.mega.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
@@ -11,25 +10,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.BowItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Inject;
 import xclient.mega.YScreen;
 import xclient.mega.utils.RainbowFont;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends EffectRenderingInventoryScreen<InventoryMenu> implements RecipeUpdateListener {
 
-    @Shadow public static void renderEntityInInventory(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {};
+    @Shadow
+    private float xMouse;
 
-    @Shadow private float xMouse;
-
-    @Shadow private float yMouse;
+    @Shadow
+    private float yMouse;
 
     public InventoryScreenMixin(InventoryMenu p_98701_, Inventory p_98702_, Component p_98703_) {
         super(p_98701_, p_98702_, p_98703_);
+    }
+
+    @Shadow
+    public static void renderEntityInInventory(int p_98851_, int p_98852_, int p_98853_, float p_98854_, float p_98855_, LivingEntity p_98856_) {
     }
 
     /**
@@ -47,6 +48,6 @@ public abstract class InventoryScreenMixin extends EffectRenderingInventoryScree
         int i = this.leftPos;
         int j = this.topPos;
         this.blit(p_98870_, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        renderEntityInInventory(i + 51, j + 75, 30, (float)(i + 51) - this.xMouse, (float)(j + 75 - 50) - this.yMouse, real);
+        renderEntityInInventory(i + 51, j + 75, 30, (float) (i + 51) - this.xMouse, (float) (j + 75 - 50) - this.yMouse, real);
     }
 }

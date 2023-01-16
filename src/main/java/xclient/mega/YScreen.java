@@ -14,6 +14,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import xclient.mega.event.RenderEvent;
 import xclient.mega.mod.Module;
+import xclient.mega.mod.bigmodule.type.RenderBm;
+import xclient.mega.utils.MegaUtil;
 import xclient.mega.utils.RainbowFont;
 
 @Mod.EventBusSubscriber
@@ -21,8 +23,38 @@ public class YScreen extends Screen implements IScreenClick {
     public static boolean display_players;
     public static Module<?> RETURN_LOCAL;
     public static Module<?> OPEN_INVENTORY;
+
     protected YScreen() {
         super(new TextComponent("Y Screen"));
+    }
+
+    public static void draw(PoseStack stack, Font font, String s, int x, int y, int color) {
+        drawString(stack, font, s, x, y, color);
+    }
+
+    public static String pos(Vec3 vec3) {
+        String x = String.format("%.2f", vec3.x);
+        String y = String.format("%.2f", vec3.y);
+        String z = String.format("%.2f", vec3.z);
+        return "(" + x + "," + y + "," + z + ")";
+    }
+
+    @SubscribeEvent
+    public static void renderPlayerInfo(RenderEvent event) {
+        if (display_players && !(Minecraft.getInstance().screen instanceof IScreenClick)) {
+            Minecraft mc = Minecraft.getInstance();
+            PoseStack stack = new PoseStack();
+            Font font = RainbowFont.INS;
+            if (display_players && mc.cameraEntity == null) {
+                mc.cameraEntity = MegaUtil.randomFrom(RenderBm.players.toArray(new Player[0]));
+            }
+            if (mc.cameraEntity instanceof Player player) {
+                draw(stack, font, "Player:" + player.getName().getString(), 0, 0, 0);
+                draw(stack, mc.font, "Armor" + player.getAttribute(Attributes.ARMOR).getBaseValue(), 0, 9, 0xFFFFFFFF);
+                draw(stack, mc.font, "Health" + player.getHealth() + "/" + player.getMaxHealth(), 0, 18, 0xFFFFFFFF);
+                draw(stack, mc.font, "Pos" + pos(player.position()), 0, 27, 0xFFFFFFFF);
+            }
+        }
     }
 
     @Override
@@ -36,7 +68,7 @@ public class YScreen extends Screen implements IScreenClick {
         Main.setModules();
         addRenderableWidget(new Button(10, 190, 80, 20, new TextComponent("Player Cameras"), (b) -> display_players = !display_players));
         if (minecraft.level != null) {
-            Main.setPlayerCamera(minecraft.level);
+            Main.setPlayerCamera();
         }
         super.init();
     }
@@ -64,31 +96,5 @@ public class YScreen extends Screen implements IScreenClick {
     public boolean mouseClicked(double x, double y, int p_94697_) {
         click(x, y, p_94697_);
         return super.mouseClicked(x, y, p_94697_);
-    }
-
-    public static void draw(PoseStack stack, Font font, String s, int x, int y, int color) {
-        drawString(stack, font, s, x, y, color);
-    }
-
-    public static String pos(Vec3 vec3) {
-        String x = String.format("%.2f", vec3.x);
-        String y = String.format("%.2f", vec3.y);
-        String z = String.format("%.2f", vec3.z);
-        return "(" + x +","+y+","+z+")";
-    }
-
-    @SubscribeEvent
-    public static void renderPlayerInfo(RenderEvent event) {
-        if (display_players && !(Minecraft.getInstance().screen instanceof IScreenClick)) {
-            Minecraft mc = Minecraft.getInstance();
-            PoseStack stack = new PoseStack();
-            Font font = RainbowFont.INS;
-            if (mc.cameraEntity instanceof Player player) {
-                draw(stack, font, "Player:"+player.getName().getString(), 0, 0, 0);
-                draw(stack, mc.font, "Armor"+player.getAttribute(Attributes.ARMOR).getBaseValue(), 0, 9, 0xFFFFFFFF);
-                draw(stack, mc.font, "Health"+player.getHealth() + "/" + player.getMaxHealth(), 0, 18, 0xFFFFFFFF);
-                draw(stack, mc.font, "Pos"+pos(player.position()), 0, 27, 0xFFFFFFFF);
-            }
-        }
     }
 }

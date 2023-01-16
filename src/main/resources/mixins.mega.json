@@ -12,11 +12,13 @@
     "FHCMixin",
     "InventoryMixin",
     "LivingEntityMixin",
+    "PlayerMixin",
     "ServerLevelMixin"
   ],
   "client": [
     "AbstractClientPlayerMixin",
     "AbstractWidgetMixin",
+    "ButtonMixin",
     "ClientLevelMixin",
     "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
@@ -29,10 +31,12 @@
     "IImageButton",
     "InventoryScreenMixin",
     "LoadingOverlayMixin",
+    "LocalPlayerMixin",
     "MA",
     "MinecraftMixin",
     "MPGMMixin",
     "ParticleManagerMixin",
+    "ScreenMixin",
     "SGMixin",
     "TitleScreenMixin",
     "WindowMixin"

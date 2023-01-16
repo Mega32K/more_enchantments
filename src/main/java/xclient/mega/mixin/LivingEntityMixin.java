@@ -1,13 +1,11 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xclient.mega.Main;
+import xclient.mega.MegaUtil;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -23,25 +23,24 @@ import java.util.Map;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
+    @Shadow
+    @Final
+    private Map<MobEffect, MobEffectInstance> activeEffects;
+
     public LivingEntityMixin(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
     }
 
     @Shadow
-    public abstract ItemStack getItemInHand(InteractionHand p_21121_);
+    protected abstract void onEffectRemoved(MobEffectInstance p_21126_);
 
-    @Shadow
-    protected abstract void tickDeath();
-
-    @Shadow @Final private Map<MobEffect, MobEffectInstance> activeEffects;
-
-    @Shadow protected abstract void onEffectRemoved(MobEffectInstance p_21126_);
+    @Shadow protected boolean jumping;
 
     @Inject(method = "tickEffects", at = @At("HEAD"))
     public void tickEntities(CallbackInfo ci) {
         Iterator<MobEffect> iterator = this.activeEffects.keySet().iterator();
         try {
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 MobEffect mobeffect = iterator.next();
                 MobEffectInstance mobeffectinstance = this.activeEffects.get(mobeffect);
                 if (MegaUtil.getE(mobeffect)) {
@@ -49,7 +48,7 @@ public abstract class LivingEntityMixin extends Entity {
                     iterator.remove();
                 }
             }
-        } catch (ConcurrentModificationException concurrentmodificationexception) {
+        } catch (ConcurrentModificationException ignored) {
         }
     }
 
@@ -61,6 +60,23 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     public void tick(CallbackInfo ci) {
+        if (Main.jumping) {
+            if (((Object)this) instanceof LocalPlayer)
+                jumping = true;
+        }
+        if (MegaUtil.getT(getType())) {
+            this.level.broadcastEntityEvent(this, (byte) 60);
+            this.remove(RemovalReason.UNLOADED_TO_CHUNK);
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"), cancellable = true)
+    public void tick2(CallbackInfo ci) {
+        if (Main.jumping) {
+            if (((Object)this) instanceof LocalPlayer)
+                jumping = true;
+        }
         if (MegaUtil.getT(getType())) {
             this.level.broadcastEntityEvent(this, (byte) 60);
             this.remove(RemovalReason.UNLOADED_TO_CHUNK);

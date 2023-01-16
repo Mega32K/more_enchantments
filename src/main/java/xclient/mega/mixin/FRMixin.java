@@ -30,17 +30,23 @@ import xclient.mega.Main;
 
 @Mixin(FogRenderer.class)
 public class FRMixin {
-    @Shadow private static long biomeChangedTime;
+    @Shadow
+    private static long biomeChangedTime;
 
-    @Shadow private static int targetBiomeFog;
+    @Shadow
+    private static int targetBiomeFog;
 
-    @Shadow private static int previousBiomeFog;
+    @Shadow
+    private static int previousBiomeFog;
 
-    @Shadow private static float fogRed;
+    @Shadow
+    private static float fogRed;
 
-    @Shadow private static float fogGreen;
+    @Shadow
+    private static float fogGreen;
 
-    @Shadow private static float fogBlue;
+    @Shadow
+    private static float fogBlue;
 
     @Inject(remap = false, method = "setupFog(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/FogRenderer$FogMode;FZF)V", at = @At("HEAD"), cancellable = true)
     private static void sf(Camera p_109025_, FogRenderer.FogMode p_109026_, float p_109027_, boolean p_109028_, float partialTicks, CallbackInfo ci) {
@@ -54,12 +60,11 @@ public class FRMixin {
         if (hook >= 0) {
             f = -8.0f;
             f1 = hook * 0.5F;
-        } else
-        if (fogtype == FogType.LAVA && !Main.dner) {
+        } else if (fogtype == FogType.LAVA && !Main.dner) {
             if (entity.isSpectator()) {
                 f = -8.0F;
                 f1 = p_109027_ * 0.5F;
-            } else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(MobEffects.FIRE_RESISTANCE)) {
+            } else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasEffect(MobEffects.FIRE_RESISTANCE)) {
                 f = 0.0F;
                 f1 = 3.0F;
             } else {
@@ -74,9 +79,9 @@ public class FRMixin {
                 f = 0.0F;
                 f1 = 2.0F;
             }
-        } else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(MobEffects.BLINDNESS) && !Main.dner) {
-            int i = ((LivingEntity)entity).getEffect(MobEffects.BLINDNESS).getDuration();
-            float f3 = Mth.lerp(Math.min(1.0F, (float)i / 20.0F), p_109027_, 5.0F);
+        } else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasEffect(MobEffects.BLINDNESS) && !Main.dner) {
+            int i = ((LivingEntity) entity).getEffect(MobEffects.BLINDNESS).getDuration();
+            float f3 = Mth.lerp(Math.min(1.0F, (float) i / 20.0F), p_109027_, 5.0F);
             if (p_109026_ == FogRenderer.FogMode.FOG_SKY) {
                 f = 0.0F;
                 f1 = f3 * 0.8F;
@@ -88,7 +93,7 @@ public class FRMixin {
             f = -8.0F;
             f1 = 96.0F;
             if (entity instanceof LocalPlayer) {
-                LocalPlayer localplayer = (LocalPlayer)entity;
+                LocalPlayer localplayer = (LocalPlayer) entity;
                 f1 *= Math.max(0.25F, localplayer.getWaterVision());
                 Holder<Biome> holder = localplayer.level.getBiome(localplayer.blockPosition());
                 if (Biome.getBiomeCategory(holder) == Biome.BiomeCategory.SWAMP) {
@@ -144,10 +149,10 @@ public class FRMixin {
             int j1 = previousBiomeFog >> 16 & 255;
             int k1 = previousBiomeFog >> 8 & 255;
             int l1 = previousBiomeFog & 255;
-            float f = Mth.clamp((float)(i - biomeChangedTime) / 5000.0F, 0.0F, 1.0F);
-            float f1 = Mth.lerp(f, (float)j1, (float)k);
-            float f2 = Mth.lerp(f, (float)k1, (float)l);
-            float f3 = Mth.lerp(f, (float)l1, (float)i1);
+            float f = Mth.clamp((float) (i - biomeChangedTime) / 5000.0F, 0.0F, 1.0F);
+            float f1 = Mth.lerp(f, (float) j1, (float) k);
+            float f2 = Mth.lerp(f, (float) k1, (float) l);
+            float f3 = Mth.lerp(f, (float) l1, (float) i1);
             fogRed = f1 / 255.0F;
             fogGreen = f2 / 255.0F;
             fogBlue = f3 / 255.0F;
@@ -168,21 +173,21 @@ public class FRMixin {
             biomeChangedTime = -1L;
             RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);
         } else {
-            float f4 = 0.25F + 0.75F * (float)p_109022_ / 32.0F;
-            f4 = 1.0F - (float)Math.pow((double)f4, 0.25D);
+            float f4 = 0.25F + 0.75F * (float) p_109022_ / 32.0F;
+            f4 = 1.0F - (float) Math.pow(f4, 0.25D);
             Vec3 vec3 = p_109021_.getSkyColor(p_109019_.getPosition(), p_109020_);
-            float f7 = (float)vec3.x;
-            float f9 = (float)vec3.y;
-            float f10 = (float)vec3.z;
-            float f11 = Mth.clamp(Mth.cos(p_109021_.getTimeOfDay(p_109020_) * ((float)Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
+            float f7 = (float) vec3.x;
+            float f9 = (float) vec3.y;
+            float f10 = (float) vec3.z;
+            float f11 = Mth.clamp(Mth.cos(p_109021_.getTimeOfDay(p_109020_) * ((float) Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
             BiomeManager biomemanager = p_109021_.getBiomeManager();
             Vec3 vec31 = p_109019_.getPosition().subtract(2.0D, 2.0D, 2.0D).scale(0.25D);
             Vec3 vec32 = CubicSampler.gaussianSampleVec3(vec31, (p_109033_, p_109034_, p_109035_) -> {
                 return p_109021_.effects().getBrightnessDependentFogColor(Vec3.fromRGB24(biomemanager.getNoiseBiomeAtQuart(p_109033_, p_109034_, p_109035_).value().getFogColor()), f11);
             });
-            fogRed = (float)vec32.x();
-            fogGreen = (float)vec32.y();
-            fogBlue = (float)vec32.z();
+            fogRed = (float) vec32.x();
+            fogGreen = (float) vec32.y();
+            fogBlue = (float) vec32.z();
             if (p_109022_ >= 4) {
                 float f12 = Mth.sin(p_109021_.getSunAngle(p_109020_)) > 0.0F ? -1.0F : 1.0F;
                 Vector3f vector3f = new Vector3f(f12, 0.0F, 0.0F);
@@ -225,11 +230,11 @@ public class FRMixin {
             biomeChangedTime = -1L;
         }
 
-        float f5 = ((float)p_109019_.getPosition().y - (float)p_109021_.getMinBuildHeight()) * p_109021_.getLevelData().getClearColorScale();
-        if (p_109019_.getEntity() instanceof LivingEntity && ((LivingEntity)p_109019_.getEntity()).hasEffect(MobEffects.BLINDNESS) && !Main.dner) {
-            int i2 = ((LivingEntity)p_109019_.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
+        float f5 = ((float) p_109019_.getPosition().y - (float) p_109021_.getMinBuildHeight()) * p_109021_.getLevelData().getClearColorScale();
+        if (p_109019_.getEntity() instanceof LivingEntity && ((LivingEntity) p_109019_.getEntity()).hasEffect(MobEffects.BLINDNESS) && !Main.dner) {
+            int i2 = ((LivingEntity) p_109019_.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
             if (i2 < 20) {
-                f5 = 1.0F - (float)i2 / 20.0F;
+                f5 = 1.0F - (float) i2 / 20.0F;
             } else {
                 f5 = 0.0F;
             }
@@ -255,12 +260,12 @@ public class FRMixin {
         float f6;
         if (fogtype == FogType.WATER && !Main.dner) {
             if (entity instanceof LocalPlayer) {
-                f6 = ((LocalPlayer)entity).getWaterVision();
+                f6 = ((LocalPlayer) entity).getWaterVision();
             } else {
                 f6 = 1.0F;
             }
-        } else if (entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(MobEffects.NIGHT_VISION)) {
-            f6 = GameRenderer.getNightVisionScale((LivingEntity)entity, p_109020_);
+        } else if (entity instanceof LivingEntity && ((LivingEntity) entity).hasEffect(MobEffects.NIGHT_VISION)) {
+            f6 = GameRenderer.getNightVisionScale((LivingEntity) entity, p_109020_);
         } else {
             f6 = 0.0F;
         }

@@ -10,13 +10,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
 
+import java.util.Date;
+
 @Mixin(Window.class)
 public class WindowMixin {
-    @Shadow @Final private long window;
+    @Shadow
+    @Final
+    private long window;
 
     @Inject(method = "setTitle", at = @At("HEAD"), cancellable = true)
     public void set(String p_85423_, CallbackInfo ci) {
-        GLFW.glfwSetWindowTitle(this.window, "X-Client | " + Main.version);
+        GLFW.glfwSetWindowTitle(this.window, "X-Client | " + Main.version + " Time:" + new Date().getHours() + ":" + new Date().getMinutes());
         ci.cancel();
     }
 }

@@ -1,6 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -11,6 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xclient.mega.MegaUtil;
 
 import java.util.Map;
 import java.util.Queue;

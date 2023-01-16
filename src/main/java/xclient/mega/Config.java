@@ -39,6 +39,7 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Boolean> quickly_place;
     public static ForgeConfigSpec.ConfigValue<Boolean> key_display;
     public static ForgeConfigSpec.ConfigValue<Boolean> quickly_bow;
+    public static ForgeConfigSpec.ConfigValue<Boolean> jumping;
 
     public static ForgeConfigSpec.ConfigValue<Integer> key_x;
     public static ForgeConfigSpec.ConfigValue<Integer> key_y;
@@ -79,6 +80,7 @@ public class Config {
         dner = COMMON_BUILDER.define("dner", false);
         key_display = COMMON_BUILDER.define("key_display", false);
         quickly_place = COMMON_BUILDER.define("quickly_place", false);
+        jumping = COMMON_BUILDER.define("jumping", false);
         background = COMMON_BUILDER.define("background index", 1);
         key_x = COMMON_BUILDER.define("key x", 3);
         key_y = COMMON_BUILDER.define("key y", 70);

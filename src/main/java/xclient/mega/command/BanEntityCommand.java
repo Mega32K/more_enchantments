@@ -1,8 +1,5 @@
 package xclient.mega.command;
 
-import xclient.mega.CommandUtil;
-import xclient.mega.Config;
-import xclient.mega.MegaUtil;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -22,6 +19,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import xclient.mega.CommandUtil;
+import xclient.mega.Config;
+import xclient.mega.MegaUtil;
 
 @Mod.EventBusSubscriber
 public class BanEntityCommand {
@@ -30,6 +30,7 @@ public class BanEntityCommand {
             return new TranslatableComponent(Util.makeDescriptionId("entity", EntityType.getKey(p_212436_)));
         });
     });
+
     @SubscribeEvent
     public static void registerCommand(RegisterCommandsEvent event) {
         final LiteralArgumentBuilder<CommandSourceStack> literalargumentbuilder = CommandUtil.create("entityBanning");
@@ -46,8 +47,7 @@ public class BanEntityCommand {
         if (!MegaUtil.getT(resourceLocation)) {
             MegaUtil.addT(resourceLocation);
             source.getSource().sendSuccess(new TextComponent(I18n.get("entity_banning.command.banned")).withStyle(ChatFormatting.YELLOW).append("").withStyle(ChatFormatting.RESET).append(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation))).withStyle(ChatFormatting.RED), false);
-        }
-        else {
+        } else {
             source.getSource().sendSuccess(new TranslatableComponent("entity_banning.command.had").withStyle(ChatFormatting.RED), false);
             source.getSource().sendSuccess(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.RED), false);
         }
@@ -69,28 +69,27 @@ public class BanEntityCommand {
     }
 
     private static int banEntityType(CommandContext<CommandSourceStack> source, ResourceLocation resourceLocation) {
-            if (!MegaUtil.getT(resourceLocation)) {
-                MegaUtil.addT(resourceLocation);
-                source.getSource().sendSuccess(new TextComponent(I18n.get("entity_banning.command.banned")).withStyle(ChatFormatting.YELLOW).append("").withStyle(ChatFormatting.RESET).append(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation))).withStyle(ChatFormatting.RED), false);
-            }
-            else {
-                source.getSource().sendSuccess(new TranslatableComponent("entity_banning.command.had").withStyle(ChatFormatting.RED), false);
-                source.getSource().sendSuccess(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.RED), false);
-            }
-            Config.ENTITY_BANNED_LIST.save();
+        if (!MegaUtil.getT(resourceLocation)) {
+            MegaUtil.addT(resourceLocation);
+            source.getSource().sendSuccess(new TextComponent(I18n.get("entity_banning.command.banned")).withStyle(ChatFormatting.YELLOW).append("").withStyle(ChatFormatting.RESET).append(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation))).withStyle(ChatFormatting.RED), false);
+        } else {
+            source.getSource().sendSuccess(new TranslatableComponent("entity_banning.command.had").withStyle(ChatFormatting.RED), false);
+            source.getSource().sendSuccess(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.RED), false);
+        }
+        Config.ENTITY_BANNED_LIST.save();
         return 0;
     }
 
     private static int unbanEntityType(CommandContext<CommandSourceStack> source, ResourceLocation resourceLocation) {
-            if (!MegaUtil.getT(resourceLocation)) {
-                source.getSource().sendSuccess(new TranslatableComponent("entity_banning.command.not_found").withStyle(ChatFormatting.RED), false);
-                source.getSource().sendSuccess(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.RED), false);
-            }
-            if (MegaUtil.getT(resourceLocation)) {
-                MegaUtil.removeT(resourceLocation);
-                source.getSource().sendSuccess(new TextComponent(I18n.get("entity_banning.command.unban") + MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.YELLOW), false);
-            }
-            Config.ENTITY_BANNED_LIST.save();
+        if (!MegaUtil.getT(resourceLocation)) {
+            source.getSource().sendSuccess(new TranslatableComponent("entity_banning.command.not_found").withStyle(ChatFormatting.RED), false);
+            source.getSource().sendSuccess(new TextComponent(MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.RED), false);
+        }
+        if (MegaUtil.getT(resourceLocation)) {
+            MegaUtil.removeT(resourceLocation);
+            source.getSource().sendSuccess(new TextComponent(I18n.get("entity_banning.command.unban") + MegaUtil.getEntityTypeResourceLocationSimpleNameWithRegistryPath(resourceLocation)).withStyle(ChatFormatting.YELLOW), false);
+        }
+        Config.ENTITY_BANNED_LIST.save();
         return 0;
     }
 

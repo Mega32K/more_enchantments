@@ -45,51 +45,69 @@ import java.util.Locale;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    @Shadow @Final private Minecraft minecraft;
+    @Shadow
+    @Final
+    public ItemInHandRenderer itemInHandRenderer;
+    @Shadow
+    @Final
+    private Minecraft minecraft;
+    @Shadow
+    private long lastActiveTime;
+    @Shadow
+    private boolean effectActive;
 
-    @Shadow private long lastActiveTime;
+    @Shadow
+    @Nullable
+    private PostChain postEffect;
+    @Shadow
+    @Final
+    private Camera mainCamera;
+    @Shadow
+    private float renderDistance;
+    @Shadow
+    private int tick;
+    @Shadow
+    @Final
+    private LightTexture lightTexture;
+    @Shadow
+    private boolean renderHand;
+    @Shadow
+    private boolean panoramicMode;
+    @Shadow
+    @Final
+    private RenderBuffers renderBuffers;
+    @Shadow
+    private boolean renderBlockOutline;
 
-    @Shadow protected abstract void tryTakeScreenshotIfNeeded();
+    @Shadow
+    protected abstract void tryTakeScreenshotIfNeeded();
 
-    @Shadow private boolean effectActive;
+    @Shadow
+    protected abstract void renderConfusionOverlay(float p_109146_);
 
-    @Shadow @Nullable private PostChain postEffect;
+    @Shadow
+    protected abstract void renderItemActivationAnimation(int p_109101_, int p_109102_, float p_109103_);
 
-    @Shadow protected abstract void renderConfusionOverlay(float p_109146_);
+    @Shadow
+    public abstract LightTexture lightTexture();
 
-    @Shadow protected abstract void renderItemActivationAnimation(int p_109101_, int p_109102_, float p_109103_);
+    @Shadow
+    public abstract void pick(float p_109088_);
 
-    @Shadow public abstract LightTexture lightTexture();
+    @Shadow
+    protected abstract double getFov(Camera p_109142_, float p_109143_, boolean p_109144_);
 
-    @Shadow public abstract void pick(float p_109088_);
+    @Shadow
+    public abstract Matrix4f getProjectionMatrix(double p_172717_);
 
-    @Shadow @Final private Camera mainCamera;
+    @Shadow
+    protected abstract void bobHurt(PoseStack p_109118_, float p_109119_);
 
-    @Shadow private float renderDistance;
+    @Shadow
+    protected abstract void bobView(PoseStack p_109139_, float p_109140_);
 
-    @Shadow protected abstract double getFov(Camera p_109142_, float p_109143_, boolean p_109144_);
-
-    @Shadow public abstract Matrix4f getProjectionMatrix(double p_172717_);
-
-    @Shadow protected abstract void bobHurt(PoseStack p_109118_, float p_109119_);
-
-    @Shadow protected abstract void bobView(PoseStack p_109139_, float p_109140_);
-
-    @Shadow private int tick;
-
-    @Shadow public abstract void resetProjectionMatrix(Matrix4f p_109112_);
-
-    @Shadow @Final private LightTexture lightTexture;
-
-    @Shadow private boolean renderHand;
-
-    @Shadow private boolean panoramicMode;
-
-    @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
-
-    @Shadow @Final private RenderBuffers renderBuffers;
-
-    @Shadow private boolean renderBlockOutline;
+    @Shadow
+    public abstract void resetProjectionMatrix(Matrix4f p_109112_);
 
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)
     private void hurtEffect(PoseStack p_109118_, float p_109119_, CallbackInfo ci) {
@@ -112,8 +130,8 @@ public abstract class GameRendererMixin {
         }
 
         if (!this.minecraft.noRender) {
-            int i = (int)(this.minecraft.mouseHandler.xpos() * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth());
-            int j = (int)(this.minecraft.mouseHandler.ypos() * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight());
+            int i = (int) (this.minecraft.mouseHandler.xpos() * (double) this.minecraft.getWindow().getGuiScaledWidth() / (double) this.minecraft.getWindow().getScreenWidth());
+            int j = (int) (this.minecraft.mouseHandler.ypos() * (double) this.minecraft.getWindow().getGuiScaledHeight() / (double) this.minecraft.getWindow().getScreenHeight());
             RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
             if (p_109096_ && this.minecraft.level != null) {
                 this.minecraft.getProfiler().push("level");
@@ -133,11 +151,11 @@ public abstract class GameRendererMixin {
 
             Window window = this.minecraft.getWindow();
             RenderSystem.clear(256, Minecraft.ON_OSX);
-            Matrix4f matrix4f = Matrix4f.orthographic(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), 0.0F, (float)((double)window.getHeight() / window.getGuiScale()), 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+            Matrix4f matrix4f = Matrix4f.orthographic(0.0F, (float) ((double) window.getWidth() / window.getGuiScale()), 0.0F, (float) ((double) window.getHeight() / window.getGuiScale()), 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
             RenderSystem.setProjectionMatrix(matrix4f);
             PoseStack posestack = RenderSystem.getModelViewStack();
             posestack.setIdentity();
-            posestack.translate(0.0D, 0.0D, 1000F-net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+            posestack.translate(0.0D, 0.0D, 1000F - net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
             RenderSystem.applyModelViewMatrix();
             Lighting.setupFor3DItems();
             PoseStack posestack1 = new PoseStack();
@@ -195,6 +213,7 @@ public abstract class GameRendererMixin {
 
         }
     }
+
     /**
      * @author mega
      * @reason dner
@@ -211,7 +230,7 @@ public abstract class GameRendererMixin {
         boolean flag = this.shouldRenderBlockOutline();
         this.minecraft.getProfiler().popPush("camera");
         Camera camera = this.mainCamera;
-        this.renderDistance = (float)(this.minecraft.options.getEffectiveRenderDistance() * 16);
+        this.renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
         PoseStack posestack = new PoseStack();
         double d0 = this.getFov(camera, p_109090_, true);
         posestack.last().pose().multiply(this.getProjectionMatrix(d0));
@@ -226,17 +245,17 @@ public abstract class GameRendererMixin {
             float f1 = 5.0F / (f * f + 5.0F) - f * 0.04F;
             f1 *= f1;
             Vector3f vector3f = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
-            posestack.mulPose(vector3f.rotationDegrees(((float)this.tick + p_109090_) * (float)i));
+            posestack.mulPose(vector3f.rotationDegrees(((float) this.tick + p_109090_) * (float) i));
             posestack.scale(1.0F / f1, 1.0F, 1.0F);
-            float f2 = -((float)this.tick + p_109090_) * (float)i;
+            float f2 = -((float) this.tick + p_109090_) * (float) i;
             posestack.mulPose(vector3f.rotationDegrees(f2));
         }
 
         Matrix4f matrix4f = posestack.last().pose();
         this.resetProjectionMatrix(matrix4f);
-        camera.setup(this.minecraft.level, (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()), !this.minecraft.options.getCameraType().isFirstPerson(), this.minecraft.options.getCameraType().isMirrored(), p_109090_);
+        camera.setup(this.minecraft.level, this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity(), !this.minecraft.options.getCameraType().isFirstPerson(), this.minecraft.options.getCameraType().isMirrored(), p_109090_);
 
-        net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup cameraSetup = net.minecraftforge.client.ForgeHooksClient.onCameraSetup((GameRenderer) (Object)this, camera, p_109090_);
+        net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup cameraSetup = net.minecraftforge.client.ForgeHooksClient.onCameraSetup((GameRenderer) (Object) this, camera, p_109090_);
         camera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
         p_109092_.mulPose(Vector3f.ZP.rotationDegrees(cameraSetup.getRoll()));
 
@@ -248,7 +267,7 @@ public abstract class GameRendererMixin {
         }
 
         this.minecraft.levelRenderer.prepareCullFrustum(p_109092_, camera.getPosition(), this.getProjectionMatrix(Math.max(d0, this.minecraft.options.fov)));
-        this.minecraft.levelRenderer.renderLevel(p_109092_, p_109090_, p_109091_, flag, camera, (GameRenderer) (Object)this, this.lightTexture, matrix4f);
+        this.minecraft.levelRenderer.renderLevel(p_109092_, p_109090_, p_109091_, flag, camera, (GameRenderer) (Object) this, this.lightTexture, matrix4f);
         this.minecraft.getProfiler().popPush("forge_render_last");
         net.minecraftforge.client.ForgeHooksClient.dispatchRenderLast(this.minecraft.levelRenderer, p_109092_, p_109090_, matrix4f, p_109091_);
         this.minecraft.getProfiler().popPush("hand");
@@ -259,6 +278,7 @@ public abstract class GameRendererMixin {
 
         this.minecraft.getProfiler().pop();
     }
+
     /**
      * @author mega
      * @reason dner
@@ -276,7 +296,7 @@ public abstract class GameRendererMixin {
                 this.bobView(p_109121_, p_109123_);
             }
 
-            boolean flag = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
+            boolean flag = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity) this.minecraft.getCameraEntity()).isSleeping();
             if (this.minecraft.options.getCameraType().isFirstPerson() && !flag && !this.minecraft.options.hideGui && (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || YScreen.display_players)) {
                 this.lightTexture.turnOnLightLayer();
                 this.itemInHandRenderer.renderHandsWithItems(p_109123_, p_109121_, this.renderBuffers.bufferSource(), this.minecraft.player, this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, p_109123_));
@@ -295,6 +315,7 @@ public abstract class GameRendererMixin {
 
         }
     }
+
     /**
      * @author mega
      * @reason dner
@@ -306,11 +327,11 @@ public abstract class GameRendererMixin {
         } else {
             Entity entity = this.minecraft.getCameraEntity();
             boolean flag = entity instanceof Player && !this.minecraft.options.hideGui;
-            if (flag && !((Player)entity).getAbilities().mayBuild) {
-                ItemStack itemstack = ((LivingEntity)entity).getMainHandItem();
+            if (flag && !((Player) entity).getAbilities().mayBuild) {
+                ItemStack itemstack = ((LivingEntity) entity).getMainHandItem();
                 HitResult hitresult = this.minecraft.hitResult;
                 if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK) {
-                    BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
+                    BlockPos blockpos = ((BlockHitResult) hitresult).getBlockPos();
                     BlockState blockstate = this.minecraft.level.getBlockState(blockpos);
                     if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR || YScreen.display_players) {
                         flag = blockstate.getMenuProvider(this.minecraft.level, blockpos) != null;

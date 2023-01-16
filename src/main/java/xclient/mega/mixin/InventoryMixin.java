@@ -1,7 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.Config;
-import xclient.mega.MegaUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -10,6 +8,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import xclient.mega.Config;
+import xclient.mega.MegaUtil;
 
 import java.util.List;
 

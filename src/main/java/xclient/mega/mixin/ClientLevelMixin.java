@@ -1,6 +1,5 @@
 package xclient.mega.mixin;
 
-import xclient.mega.MegaUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -18,6 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xclient.mega.MegaUtil;
 
 import java.util.function.Supplier;
 

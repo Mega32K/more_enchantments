@@ -1,18 +1,15 @@
 package xclient.mega.utils;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.awt.*;
 import java.util.List;
@@ -60,18 +57,18 @@ public class HudUtils {
     }
 
     public static void fillGradient(Matrix4f p_93124_, BufferBuilder p_93125_, int p_93126_, int p_93127_, int p_93128_, int p_93129_, int p_93130_, int p_93131_, int p_93132_) {
-        float f = (float)(p_93131_ >> 24 & 255) / 255.0F;
-        float f1 = (float)(p_93131_ >> 16 & 255) / 255.0F;
-        float f2 = (float)(p_93131_ >> 8 & 255) / 255.0F;
-        float f3 = (float)(p_93131_ & 255) / 255.0F;
-        float f4 = (float)(p_93132_ >> 24 & 255) / 255.0F;
-        float f5 = (float)(p_93132_ >> 16 & 255) / 255.0F;
-        float f6 = (float)(p_93132_ >> 8 & 255) / 255.0F;
-        float f7 = (float)(p_93132_ & 255) / 255.0F;
-        p_93125_.vertex(p_93124_, (float)p_93128_, (float)p_93127_, (float)p_93130_).color(f1, f2, f3, f).endVertex();
-        p_93125_.vertex(p_93124_, (float)p_93126_, (float)p_93127_, (float)p_93130_).color(f1, f2, f3, f).endVertex();
-        p_93125_.vertex(p_93124_, (float)p_93126_, (float)p_93129_, (float)p_93130_).color(f5, f6, f7, f4).endVertex();
-        p_93125_.vertex(p_93124_, (float)p_93128_, (float)p_93129_, (float)p_93130_).color(f5, f6, f7, f4).endVertex();
+        float f = (float) (p_93131_ >> 24 & 255) / 255.0F;
+        float f1 = (float) (p_93131_ >> 16 & 255) / 255.0F;
+        float f2 = (float) (p_93131_ >> 8 & 255) / 255.0F;
+        float f3 = (float) (p_93131_ & 255) / 255.0F;
+        float f4 = (float) (p_93132_ >> 24 & 255) / 255.0F;
+        float f5 = (float) (p_93132_ >> 16 & 255) / 255.0F;
+        float f6 = (float) (p_93132_ >> 8 & 255) / 255.0F;
+        float f7 = (float) (p_93132_ & 255) / 255.0F;
+        p_93125_.vertex(p_93124_, (float) p_93128_, (float) p_93127_, (float) p_93130_).color(f1, f2, f3, f).endVertex();
+        p_93125_.vertex(p_93124_, (float) p_93126_, (float) p_93127_, (float) p_93130_).color(f1, f2, f3, f).endVertex();
+        p_93125_.vertex(p_93124_, (float) p_93126_, (float) p_93129_, (float) p_93130_).color(f5, f6, f7, f4).endVertex();
+        p_93125_.vertex(p_93124_, (float) p_93128_, (float) p_93129_, (float) p_93130_).color(f5, f6, f7, f4).endVertex();
     }
 
     public static void renderTooltip(PoseStack p_96618_, List<Component> p_96619_, int p_96620_, int p_96621_, Font font) {
@@ -84,11 +81,11 @@ public class HudUtils {
     }
 
     private static void renderTooltipInternal(PoseStack p_169384_, List<Component> p_169385_, int x, int y, int screen_width, int screen_height, Font font) {
-        if (!p_169385_.isEmpty()) {  
+        if (!p_169385_.isEmpty()) {
             int i = 0;
             int j = p_169385_.size() == 1 ? -2 : 0;
 
-            for(Component component : p_169385_) {
+            for (Component component : p_169385_) {
                 int k = font.width(component);
                 if (k > i) {
                     i = k;
@@ -107,7 +104,7 @@ public class HudUtils {
                 k2 = screen_height - j - 6;
             }
 
-            p_169384_.pushPose(); 
+            p_169384_.pushPose();
             float f = Minecraft.getInstance().getItemRenderer().blitOffset;
             Minecraft.getInstance().getItemRenderer().blitOffset = 400.0F;
             Tesselator tesselator = Tesselator.getInstance();
@@ -136,14 +133,14 @@ public class HudUtils {
             p_169384_.translate(0.0D, 0.0D, 400.0D);
             int l1 = k2;
 
-            for(int i2 = 0; i2 < p_169385_.size(); ++i2) {
+            for (int i2 = 0; i2 < p_169385_.size(); ++i2) {
                 Component clienttooltipcomponent1 = p_169385_.get(i2);
                 font.drawShadow(p_169384_, clienttooltipcomponent1.getString(), j2, l1, 0xFFFFFFF);
                 l1 += 5 + (i2 == 0 ? 2 : 0);
             }
 
             multibuffersource$buffersource.endBatch();
-            p_169384_.popPose(); 
+            p_169384_.popPose();
 
             Minecraft.getInstance().getItemRenderer().blitOffset = f;
         }

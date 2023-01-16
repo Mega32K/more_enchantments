@@ -5,32 +5,23 @@ public class Vec2d {
     /**
      * The x coordinate.
      */
-    public double x;
+    public int x;
 
     /**
      * The y coordinate.
      */
-    public double y;
+    public int y;
 
-    public Vec2d() { }
+    public Vec2d() {
+    }
 
-    public Vec2d(double x, double y) {
+    public Vec2d(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
     public Vec2d(Vec2d v) {
         set(v);
-    }
-
-    public void set(Vec2d v) {
-        this.x = v.x;
-        this.y = v.y;
-    }
-
-    public void set(double x, double y) {
-        this.x = x;
-        this.y = y;
     }
 
     /**
@@ -65,6 +56,16 @@ public class Vec2d {
         return Math.sqrt(x1 * x1 + y1 * y1);
     }
 
+    public void set(Vec2d v) {
+        this.x = v.x;
+        this.y = v.y;
+    }
+
+    public void set(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     /**
      * Returns the square of the distance from this
      * <code>Vec2d</code> to a specified point.
@@ -87,7 +88,7 @@ public class Vec2d {
      * <code>Vec2d</code> to a specified <code>Vec2d</code>.
      *
      * @param v the specified point to be measured
-     *           against this <code>Vec2d</code>
+     *          against this <code>Vec2d</code>
      * @return the square of the distance between this
      * <code>Vec2d</code> to a specified <code>Vec2d</code>.
      */
@@ -119,7 +120,7 @@ public class Vec2d {
      * specified <code>Vec2d</code>.
      *
      * @param v the specified point to be measured
-     *           against this <code>Vec2d</code>
+     *          against this <code>Vec2d</code>
      * @return the distance between this <code>Vec2d</code> and
      * the specified <code>Vec2d</code>.
      */
@@ -131,7 +132,8 @@ public class Vec2d {
 
     /**
      * Returns the hashcode for this <code>Vec2d</code>.
-     * @return      a hash code for this <code>Vec2d</code>.
+     *
+     * @return a hash code for this <code>Vec2d</code>.
      */
     @Override
     public int hashCode() {
@@ -146,10 +148,11 @@ public class Vec2d {
      * Two instances of <code>Vec2d</code> are equal if the values of their
      * <code>x</code> and <code>y</code> member fields, representing
      * their position in the coordinate space, are the same.
+     *
      * @param obj an object to be compared with this <code>Vec2d</code>
      * @return <code>true</code> if the object to be compared is
-     *         an instance of <code>Vec2d</code> and has
-     *         the same values; <code>false</code> otherwise.
+     * an instance of <code>Vec2d</code> and has
+     * the same values; <code>false</code> otherwise.
      */
     @Override
     public boolean equals(Object obj) {
@@ -166,6 +169,7 @@ public class Vec2d {
     /**
      * Returns a <code>String</code> that represents the value
      * of this <code>Vec2d</code>.
+     *
      * @return a string representation of this <code>Vec2d</code>.
      */
     @Override

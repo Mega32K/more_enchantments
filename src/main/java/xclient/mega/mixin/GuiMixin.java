@@ -32,86 +32,117 @@ import javax.annotation.Nullable;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin extends GuiComponent {
-    @Shadow @Final @Mutable
+    @Shadow
+    @Final
+    @Mutable
     protected static ResourceLocation WIDGETS_LOCATION;
+    @Shadow
+    @Final
+    protected static ResourceLocation PUMPKIN_BLUR_LOCATION;
+    @Shadow
+    @Final
+    protected static ResourceLocation POWDER_SNOW_OUTLINE_LOCATION;
+    @Shadow
+    protected int screenWidth;
+    @Shadow
+    protected int screenHeight;
+    @Shadow
+    @Final
+    protected Minecraft minecraft;
+    @Shadow
+    protected float scopeScale;
+    @Shadow
+    @Final
+    protected SpectatorGui spectatorGui;
+    @Shadow
+    @Final
+    protected BossHealthOverlay bossOverlay;
+    @Shadow
+    @Final
+    protected DebugScreenOverlay debugScreen;
+    @Shadow
+    @Nullable
+    protected Component overlayMessageString;
+    @Shadow
+    protected int overlayMessageTime;
+    @Shadow
+    protected boolean animateOverlayMessageColor;
+    @Shadow
+    @Nullable
+    protected Component title;
+    @Shadow
+    protected int titleTime;
+    @Shadow
+    protected int titleFadeOutTime;
+    @Shadow
+    protected int titleFadeInTime;
+    @Shadow
+    protected int titleStayTime;
+    @Shadow
+    @Nullable
+    protected Component subtitle;
+    @Shadow
+    @Final
+    protected SubtitleOverlay subtitleOverlay;
+    @Shadow
+    @Final
+    protected PlayerTabOverlay tabList;
+    @Shadow
+    @Final
+    protected ChatComponent chat;
+    @Shadow
+    protected int tickCount;
 
-    @Shadow protected int screenWidth;
+    @Shadow
+    public abstract Font getFont();
 
-    @Shadow protected int screenHeight;
+    @Shadow
+    protected abstract void renderVignette(Entity p_93068_);
 
-    @Shadow @Final protected Minecraft minecraft;
+    @Shadow
+    protected abstract void renderSpyglassOverlay(float p_168676_);
 
-    @Shadow public abstract Font getFont();
+    @Shadow
+    protected abstract void renderTextureOverlay(ResourceLocation p_168709_, float p_168710_);
 
-    @Shadow protected abstract void renderVignette(Entity p_93068_);
+    @Shadow
+    protected abstract void renderPortalOverlay(float p_93008_);
 
-    @Shadow protected float scopeScale;
+    @Shadow
+    protected abstract void renderHotbar(float p_93010_, PoseStack p_93011_);
 
-    @Shadow protected abstract void renderSpyglassOverlay(float p_168676_);
+    @Shadow
+    protected abstract void renderCrosshair(PoseStack p_93081_);
 
-    @Shadow protected abstract void renderTextureOverlay(ResourceLocation p_168709_, float p_168710_);
+    @Shadow
+    protected abstract void renderPlayerHealth(PoseStack p_93084_);
 
-    @Shadow @Final protected static ResourceLocation PUMPKIN_BLUR_LOCATION;
+    @Shadow
+    protected abstract void renderVehicleHealth(PoseStack p_93087_);
 
-    @Shadow @Final protected static ResourceLocation POWDER_SNOW_OUTLINE_LOCATION;
+    @Shadow
+    public abstract void renderDemoOverlay(PoseStack p_93078_);
 
-    @Shadow protected abstract void renderPortalOverlay(float p_93008_);
+    @Shadow
+    protected abstract void renderEffects(PoseStack p_93029_);
 
-    @Shadow @Final protected SpectatorGui spectatorGui;
+    @Shadow
+    public abstract void renderJumpMeter(PoseStack p_93034_, int p_93035_);
 
-    @Shadow protected abstract void renderHotbar(float p_93010_, PoseStack p_93011_);
+    @Shadow
+    public abstract void renderExperienceBar(PoseStack p_93072_, int p_93073_);
 
-    @Shadow protected abstract void renderCrosshair(PoseStack p_93081_);
+    @Shadow
+    public abstract void renderSelectedItemName(PoseStack p_93070_);
 
-    @Shadow @Final protected BossHealthOverlay bossOverlay;
+    @Shadow
+    protected abstract void drawBackdrop(PoseStack p_93040_, Font p_93041_, int p_93042_, int p_93043_, int p_93044_);
 
-    @Shadow protected abstract void renderPlayerHealth(PoseStack p_93084_);
+    @Shadow
+    protected abstract void displayScoreboardSidebar(PoseStack p_93037_, Objective p_93038_);
 
-    @Shadow protected abstract void renderVehicleHealth(PoseStack p_93087_);
-
-    @Shadow public abstract void renderDemoOverlay(PoseStack p_93078_);
-
-    @Shadow protected abstract void renderEffects(PoseStack p_93029_);
-
-    @Shadow @Final protected DebugScreenOverlay debugScreen;
-
-    @Shadow @Nullable protected Component overlayMessageString;
-
-    @Shadow protected int overlayMessageTime;
-
-    @Shadow public abstract void renderJumpMeter(PoseStack p_93034_, int p_93035_);
-
-    @Shadow public abstract void renderExperienceBar(PoseStack p_93072_, int p_93073_);
-
-    @Shadow public abstract void renderSelectedItemName(PoseStack p_93070_);
-
-    @Shadow protected boolean animateOverlayMessageColor;
-
-    @Shadow protected abstract void drawBackdrop(PoseStack p_93040_, Font p_93041_, int p_93042_, int p_93043_, int p_93044_);
-
-    @Shadow @Nullable protected Component title;
-
-    @Shadow protected int titleTime;
-
-    @Shadow protected int titleFadeOutTime;
-
-    @Shadow protected int titleFadeInTime;
-
-    @Shadow protected int titleStayTime;
-
-    @Shadow @Nullable protected Component subtitle;
-
-    @Shadow @Final protected SubtitleOverlay subtitleOverlay;
-
-    @Shadow protected abstract void displayScoreboardSidebar(PoseStack p_93037_, Objective p_93038_);
-
-    @Shadow @Final protected PlayerTabOverlay tabList;
-
-    @Shadow @Final protected ChatComponent chat;
-
-    @Shadow protected int tickCount;
-
-    @Shadow protected abstract void renderSavingIndicator(PoseStack p_193835_);
+    @Shadow
+    protected abstract void renderSavingIndicator(PoseStack p_193835_);
 
     @Inject(method = "render", at = @At("RETURN"))
     private void clinit(CallbackInfo ci) {
@@ -202,13 +233,13 @@ public abstract class GuiMixin extends GuiComponent {
         if (this.minecraft.player.getSleepTimer() > 0) {
             this.minecraft.getProfiler().push("sleep");
             RenderSystem.disableDepthTest();
-            float f3 = (float)this.minecraft.player.getSleepTimer();
+            float f3 = (float) this.minecraft.player.getSleepTimer();
             float f1 = f3 / 100.0F;
             if (f1 > 1.0F) {
                 f1 = 1.0F - (f3 - 100.0F) / 10.0F;
             }
 
-            int j = (int)(220.0F * f1) << 24 | 1052704;
+            int j = (int) (220.0F * f1) << 24 | 1052704;
             fill(p_93031_, 0, 0, this.screenWidth, this.screenHeight, j);
             RenderSystem.enableDepthTest();
             this.minecraft.getProfiler().pop();
@@ -227,15 +258,15 @@ public abstract class GuiMixin extends GuiComponent {
         if (!this.minecraft.options.hideGui) {
             if (this.overlayMessageString != null && this.overlayMessageTime > 0) {
                 this.minecraft.getProfiler().push("overlayMessage");
-                float f4 = (float)this.overlayMessageTime - p_93032_;
-                int i1 = (int)(f4 * 255.0F / 20.0F);
+                float f4 = (float) this.overlayMessageTime - p_93032_;
+                int i1 = (int) (f4 * 255.0F / 20.0F);
                 if (i1 > 255) {
                     i1 = 255;
                 }
 
                 if (i1 > 8) {
                     p_93031_.pushPose();
-                    p_93031_.translate((double)(this.screenWidth / 2), (double)(this.screenHeight - 68), 0.0D);
+                    p_93031_.translate(this.screenWidth / 2, this.screenHeight - 68, 0.0D);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     int k1 = 16777215;
@@ -246,7 +277,7 @@ public abstract class GuiMixin extends GuiComponent {
                     int k = i1 << 24 & -16777216;
                     int l = font.width(this.overlayMessageString);
                     this.drawBackdrop(p_93031_, font, -4, l, 16777215 | k);
-                    font.draw(p_93031_, this.overlayMessageString, (float)(-l / 2), -4.0F, k1 | k);
+                    font.draw(p_93031_, this.overlayMessageString, (float) (-l / 2), -4.0F, k1 | k);
                     RenderSystem.disableBlend();
                     p_93031_.popPose();
                 }
@@ -256,21 +287,21 @@ public abstract class GuiMixin extends GuiComponent {
 
             if (this.title != null && this.titleTime > 0) {
                 this.minecraft.getProfiler().push("titleAndSubtitle");
-                float f5 = (float)this.titleTime - p_93032_;
+                float f5 = (float) this.titleTime - p_93032_;
                 int j1 = 255;
                 if (this.titleTime > this.titleFadeOutTime + this.titleStayTime) {
-                    float f6 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - f5;
-                    j1 = (int)(f6 * 255.0F / (float)this.titleFadeInTime);
+                    float f6 = (float) (this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - f5;
+                    j1 = (int) (f6 * 255.0F / (float) this.titleFadeInTime);
                 }
 
                 if (this.titleTime <= this.titleFadeOutTime) {
-                    j1 = (int)(f5 * 255.0F / (float)this.titleFadeOutTime);
+                    j1 = (int) (f5 * 255.0F / (float) this.titleFadeOutTime);
                 }
 
                 j1 = Mth.clamp(j1, 0, 255);
                 if (j1 > 8) {
                     p_93031_.pushPose();
-                    p_93031_.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), 0.0D);
+                    p_93031_.translate(this.screenWidth / 2, this.screenHeight / 2, 0.0D);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     p_93031_.pushPose();
@@ -278,14 +309,14 @@ public abstract class GuiMixin extends GuiComponent {
                     int l1 = j1 << 24 & -16777216;
                     int i2 = font.width(this.title);
                     this.drawBackdrop(p_93031_, font, -10, i2, 16777215 | l1);
-                    font.drawShadow(p_93031_, this.title, (float)(-i2 / 2), -10.0F, 16777215 | l1);
+                    font.drawShadow(p_93031_, this.title, (float) (-i2 / 2), -10.0F, 16777215 | l1);
                     p_93031_.popPose();
                     if (this.subtitle != null) {
                         p_93031_.pushPose();
                         p_93031_.scale(2.0F, 2.0F, 2.0F);
                         int k2 = font.width(this.subtitle);
                         this.drawBackdrop(p_93031_, font, 5, k2, 16777215 | l1);
-                        font.drawShadow(p_93031_, this.subtitle, (float)(-k2 / 2), 5.0F, 16777215 | l1);
+                        font.drawShadow(p_93031_, this.subtitle, (float) (-k2 / 2), 5.0F, 16777215 | l1);
                         p_93031_.popPose();
                     }
 
@@ -315,7 +346,7 @@ public abstract class GuiMixin extends GuiComponent {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             p_93031_.pushPose();
-            p_93031_.translate(0.0D, (double)(this.screenHeight - 48), 0.0D);
+            p_93031_.translate(0.0D, this.screenHeight - 48, 0.0D);
             this.minecraft.getProfiler().push("chat");
             this.chat.render(p_93031_, this.tickCount);
             this.minecraft.getProfiler().pop();
@@ -332,5 +363,8 @@ public abstract class GuiMixin extends GuiComponent {
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        if (minecraft.player != null && minecraft.player.hasEffect(MobEffects.CONFUSION) && Main.dner) {
+            minecraft.player.removeEffect(MobEffects.CONFUSION);
+        }
     }
 }

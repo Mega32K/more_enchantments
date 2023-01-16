@@ -8,7 +8,7 @@ public class MathUtil {
     }
 
     public static double square(double d) {
-        return d*d;
+        return d * d;
     }
 
     public static double range(Vec2d range) {
