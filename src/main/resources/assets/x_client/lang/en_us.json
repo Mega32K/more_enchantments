@@ -83,5 +83,23 @@
   "key.ka" : "Super KillAura",
   "key.info" : "Display Info",
   "key.message" : "Open/Close EditScreen",
-  "key.y" : "Open/Close CameraScreen"
+  "key.y" : "Open/Close CameraScreen",
+
+  "auto_attack" : "Auto Attack",
+  "super_killaura" : "Super KillAura",
+  "killaura_range" : "KillAura Range",
+  "killaura_attackplayer" : "KillAura AttackPlayer",
+  "quickly_bow" : "Quickly Bow",
+  "fly" : "Fly",
+  "jumping" : "Jumping",
+  "no_fall" : "No Fall",
+  "respawn" : "Respawn",
+  "sprint" : "Sprint",
+  "reach" : "Reach",
+  "quickly_place" : "Quickly Place",
+  "hurt_effect" : "Hurt Effect",
+  "render_players_outline" : "Render Players Outline",
+  "full_bright" : "Full Bright",
+  "key_display" : "Key Display",
+  "disable_negativeeffect_rendering" : "Disable NegativeEffect Rendering"
 }

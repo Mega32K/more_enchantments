@@ -167,8 +167,9 @@ public class Main {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
         Module.every.clear();
-        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d -> BigModuleBase.every.forEach(bm -> {
-            bm.pos = new Vec2d(0, BigModuleBase.every.indexOf(bm) * 10 + 5);
+        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d ->
+                BigModuleBase.every.forEach(bm -> {
+                    bm.pos = new Vec2d(0, BigModuleBase.every.indexOf(bm) * 10 + 5);
         }));
 
         AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> auto_attack = !auto_attack));
@@ -213,15 +214,6 @@ public class Main {
         DISABLE_NEGATIVE_EFFECT_RENDERER = new Module<>("Disable NegativeEffect Rendering", dner, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft((d -> dner = !dner));
         KEY_DISPLAY = new Module<>("Key Display", key_display, false, RainbowFont.NORMAL).setFather_Bm(BmMain.RENDER).setLeft(d -> key_display = !key_display);
 
-        YScreen.OPEN_INVENTORY = new Module<>("Open Inv").setLeft(b -> {
-            Entity entity = Minecraft.instance.cameraEntity;
-            if (YScreen.display_players) {
-                if (entity instanceof Player player) {
-                    Minecraft.getInstance().tutorial.onOpenInventory();
-                    Minecraft.getInstance().setScreen(new InventoryScreen(player));
-                }
-            }
-        }).unaddToList();
         YScreen.RETURN_LOCAL = new Module<>("Return Local").setLeft(b -> Minecraft.getInstance().cameraEntity = Minecraft.getInstance().player).unaddToList();
         BmMain.setBms();
     }

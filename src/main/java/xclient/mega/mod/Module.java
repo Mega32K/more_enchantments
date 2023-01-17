@@ -100,7 +100,7 @@ public class Module<T> {
     }
 
     public String getName() {
-        return enableColorPutter ? ColorPutter.rainbow(I18n.get(name.toLowerCase())) : name.toLowerCase();
+        return enableColorPutter ? ColorPutter.rainbow(I18n.get(name.toLowerCase().replaceAll(" ","_"))) : I18n.get(name.toLowerCase().replaceAll(" ","_"));
     }
 
     public Module<T> setName(String name) {

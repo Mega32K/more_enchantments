@@ -81,5 +81,23 @@
   "key.y" : "Open/Close CameraScreen",
   "key.ka" : "Super KillAura",
   "key.info" : "显示信息",
-  "key.category.x_client" : "The X"
+  "key.category.x_client" : "The X",
+
+  "auto_attack" : "自动攻击",
+  "super_killaura" : "杀戮光环",
+  "killaura_range" : "杀戮光环 范围",
+  "killaura_attackplayer" : "杀戮光环 攻击玩家",
+  "quickly_bow" : "快速拉弓",
+  "fly" : "飞行",
+  "jumping" : "自动跳跃",
+  "no_fall" : "免疫摔落",
+  "respawn" : "自动复活",
+  "sprint" : "自动疾跑",
+  "reach" : "触及范围",
+  "quickly_place" : "快速放置",
+  "hurt_effect" : "受伤效果",
+  "render_players_outline" : "发光玩家",
+  "full_bright" : "白昼",
+  "key_display" : "按键显示",
+  "disable_negativeeffect_rendering" : "禁用负面效果渲染"
 }

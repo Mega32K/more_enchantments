@@ -1,5 +1,7 @@
 package xclient.mega.utils;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -56,6 +58,11 @@ public class MegaUtil {
         int rand = new Random().nextInt(list.size());
         return list.get(rand);
     }
+
+    public static void really_sendOpenInv(LocalPlayer player, Player target) {
+        player.connection.send(new ServerboundPlayerCommandPacket(target, ServerboundPlayerCommandPacket.Action.OPEN_INVENTORY));
+    }
+
 
     public static double circleX(double x, double r, double a) {
         return x + r * Math.cos(Math.toRadians(a));

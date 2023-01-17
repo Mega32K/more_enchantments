@@ -22,7 +22,6 @@ import xclient.mega.utils.RainbowFont;
 public class YScreen extends Screen implements IScreenClick {
     public static boolean display_players;
     public static Module<?> RETURN_LOCAL;
-    public static Module<?> OPEN_INVENTORY;
 
     protected YScreen() {
         super(new TextComponent("Y Screen"));
@@ -87,7 +86,6 @@ public class YScreen extends Screen implements IScreenClick {
                 }
             }
             RETURN_LOCAL.render(stack, width - RETURN_LOCAL.width, 0, XScreen.isInRange(RETURN_LOCAL, mx, my));
-            OPEN_INVENTORY.render(stack, width - OPEN_INVENTORY.width, RETURN_LOCAL.height + 1, XScreen.isInRange(OPEN_INVENTORY, mx, my));
         }
         super.render(stack, mx, my, pt);
     }
