@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
 
+import java.io.InputStream;
 import java.util.Date;
 
 @Mixin(Window.class)
@@ -22,5 +23,10 @@ public class WindowMixin {
     public void set(String p_85423_, CallbackInfo ci) {
         GLFW.glfwSetWindowTitle(this.window, "X-Client | " + Main.version + " Time:" + new Date().getHours() + ":" + new Date().getMinutes());
         ci.cancel();
+    }
+
+    @Inject(method = "setIcon", at = @At("HEAD"))
+    private void setI(InputStream p_85396_, InputStream p_85397_, CallbackInfo ci) {
+
     }
 }

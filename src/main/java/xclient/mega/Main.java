@@ -242,7 +242,10 @@ public class Main {
 
         @SubscribeEvent
         public static void mouseScroll(InputEvent.MouseScrollEvent event) {
-            zoom += event.getScrollDelta() / 20;
+            if (Minecraft.getInstance().options.keySprint.consumeClick()) {
+                zoom += event.getScrollDelta() / 20;
+
+            }
             if (zoom < 1.0F)
                 zoom = 1.0F;
         }
