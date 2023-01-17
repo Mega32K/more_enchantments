@@ -29,10 +29,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.MinecraftForge;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -109,6 +106,9 @@ public abstract class GameRendererMixin {
     @Shadow
     public abstract void resetProjectionMatrix(Matrix4f p_109112_);
 
+    @Shadow @Mutable
+    private float zoom;
+
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)
     private void hurtEffect(PoseStack p_109118_, float p_109119_, CallbackInfo ci) {
         if (!Main.enableHurtEffect)
@@ -121,6 +121,7 @@ public abstract class GameRendererMixin {
      */
     @Overwrite
     public void render(float p_109094_, long p_109095_, boolean p_109096_) {
+        zoom = Main.zoom;
         minecraft.getWindow().setTitle("");
         if (!this.minecraft.isWindowActive() && this.minecraft.options.pauseOnLostFocus && (!this.minecraft.options.touchscreen || !this.minecraft.mouseHandler.isRightPressed())) {
             if (Util.getMillis() - this.lastActiveTime > 500L) {

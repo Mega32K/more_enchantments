@@ -3,10 +3,10 @@ package xclient.mega.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import xclient.mega.Main;
@@ -14,10 +14,14 @@ import xclient.mega.utils.Render2DUtil;
 
 import java.awt.*;
 
-@Mixin(Button.class)
-public abstract class ButtonMixin extends AbstractWidget {
-    public ButtonMixin(int p_93629_, int p_93630_, int p_93631_, int p_93632_, Component p_93633_) {
-        super(p_93629_, p_93630_, p_93631_, p_93632_, p_93633_);
+@Mixin(ExtendedButton.class)
+public abstract class ExtendedButtonMixin extends Button {
+    public ExtendedButtonMixin(int p_93721_, int p_93722_, int p_93723_, int p_93724_, Component p_93725_, OnPress p_93726_) {
+        super(p_93721_, p_93722_, p_93723_, p_93724_, p_93725_, p_93726_);
+    }
+
+    public ExtendedButtonMixin(int p_93728_, int p_93729_, int p_93730_, int p_93731_, Component p_93732_, OnPress p_93733_, OnTooltip p_93734_) {
+        super(p_93728_, p_93729_, p_93730_, p_93731_, p_93732_, p_93733_, p_93734_);
     }
 
     /**

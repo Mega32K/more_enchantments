@@ -6,17 +6,18 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundChatPacket;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -37,6 +38,7 @@ import xclient.mega.mod.ModuleManager;
 import xclient.mega.mod.bigmodule.BigModuleBase;
 import xclient.mega.mod.bigmodule.type.KeyDisplayBM;
 import xclient.mega.mod.bigmodule.type.RenderBm;
+import xclient.mega.network.ServerboundHealPlayer;
 import xclient.mega.utils.RainbowFont;
 import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.TimeHelper;
@@ -57,6 +59,7 @@ public class Main {
     public static boolean enable_display_info = false;
     public static int _x_ = 3, _y_ = 70;
     public static float key_scale = 1.0F;
+    public static float zoom = 1.0F;
 
     public static boolean killaura_displayInfo = false;
     public static float killaura_range = 3.8F;
@@ -188,6 +191,7 @@ public class Main {
                 mc.player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
             }
         }));
+        JUMPING = new Module<>("Jumping", jumping, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> jumping = !jumping));
         NO_FALL = new Module<>("No Fall", no_fall, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> no_fall = !no_fall));
         RESPAWN = new Module<>("Respawn", respawn, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> respawn = !respawn));
         SPRINT = new Module<>("Sprint", sprint, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> sprint = !sprint));
@@ -235,10 +239,17 @@ public class Main {
             if (DISPLAY_INFO.consumeClick())
                 enable_display_info = !enable_display_info;
         }
+
+        @SubscribeEvent
+        public static void mouseScroll(InputEvent.MouseScrollEvent event) {
+            zoom += event.getScrollDelta() / 20;
+            if (zoom < 1.0F)
+                zoom = 1.0F;
+        }
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT)
-    public static class KeyEvents {
+    public static class CoreEvents {
         public static int client_ticks = 0;
 
         @SubscribeEvent
@@ -247,15 +258,6 @@ public class Main {
                 if (sprint) {
                     event.player.setSprinting(true);
                 }
-            }
-        }
-
-        @SubscribeEvent
-        public static void ld(LivingDeathEvent event) {
-            if (respawn) {
-                if (event.getEntityLiving() instanceof LocalPlayer)
-                    if (Minecraft.getInstance().player != null)
-                        Minecraft.getInstance().player.connection.send(new ServerboundChatPacket("/back"));
             }
         }
 
@@ -286,14 +288,17 @@ public class Main {
             LocalPlayer player = mc.player;
             Entity point = mc.crosshairPickEntity;
             if (player != null) {
+                if (jumping) {
+                    mc.options.keyJump.setDown(true);
+                }
                 if (fly) {
                     Abilities abilities = new Abilities();
                     abilities.mayfly = true;
                     player.getAbilities().mayfly = true;
                     player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
                 }
-                if (client_ticks % 20 == 0) {
-                    if (no_fall && player.fallDistance <= .5F && player.fallDistance > .2F)
+                if (client_ticks % 3 == 0) {
+                    if (no_fall && player.fallDistance <= 0.5F)
                         player.connection.send(new ServerboundMovePlayerPacket.StatusOnly(true));
                 }
                 if (superKillAura && client_ticks % 20 == 0) {

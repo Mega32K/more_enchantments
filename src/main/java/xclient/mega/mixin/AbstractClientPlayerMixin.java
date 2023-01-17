@@ -1,9 +1,13 @@
 package xclient.mega.mixin;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -34,5 +38,14 @@ public abstract class AbstractClientPlayerMixin extends Player {
             MobEffectInstance instance = new MobEffectInstance(MobEffects.GLOWING, 3, 1);
             addEffect(instance);
         }
+    }
+
+    @Override
+    protected void tickDeath() {
+        if (((Object)this) instanceof LocalPlayer player) {
+            if (Main.respawn)
+                player.connection.send(new ServerboundChatPacket("/back"));
+        }
+        super.tickDeath();
     }
 }
