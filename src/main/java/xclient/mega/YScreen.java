@@ -94,7 +94,10 @@ public class YScreen extends Screen implements IScreenClick {
 
     @Override
     public boolean mouseClicked(double x, double y, int p_94697_) {
-        click(x, y, p_94697_);
+        for (Module<?> m : Main.PLAYER_CAMERA) {
+            if (XScreen.isInRange(m, (int) x, (int) y))
+                m.left();
+        }
         return super.mouseClicked(x, y, p_94697_);
     }
 }

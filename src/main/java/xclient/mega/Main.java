@@ -151,7 +151,7 @@ public class Main {
         setModules();
         PLAYER_CAMERA = new ArrayList<>();
         for (Player player : RenderBm.players) {
-            if (!player.isRemoved()) {
+            if (!player.isRemoved() && player.tickCount > 1 && player.deathTime <= 0) {
                 Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2, 130, timeHelper.integer_time, timeHelper.integer_time));
                 PLAYER_CAMERA.add(player_camera);
             }

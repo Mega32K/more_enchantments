@@ -21,15 +21,10 @@ import java.io.InputStream;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-
     @Shadow
     public abstract Window getWindow();
 
-    @Shadow public abstract ClientPackSource getClientPackSource();
-
     @Shadow public Window window;
-
-    @Shadow public static Logger LOGGER;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(CallbackInfo ci) {

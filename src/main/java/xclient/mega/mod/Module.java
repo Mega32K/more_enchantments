@@ -3,6 +3,7 @@ package xclient.mega.mod;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import xclient.mega.Main;
 import xclient.mega.mod.bigmodule.BigModuleBase;
@@ -99,7 +100,7 @@ public class Module<T> {
     }
 
     public String getName() {
-        return enableColorPutter ? ColorPutter.rainbow(name) : name;
+        return enableColorPutter ? ColorPutter.rainbow(I18n.get(name.toLowerCase())) : name.toLowerCase();
     }
 
     public Module<T> setName(String name) {

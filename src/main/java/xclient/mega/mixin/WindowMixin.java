@@ -21,12 +21,7 @@ public class WindowMixin {
 
     @Inject(method = "setTitle", at = @At("HEAD"), cancellable = true)
     public void set(String p_85423_, CallbackInfo ci) {
-        GLFW.glfwSetWindowTitle(this.window, "X-Client | " + Main.version + " Time:" + new Date().getHours() + ":" + new Date().getMinutes());
+        GLFW.glfwSetWindowTitle(this.window, "X-Client | " + Main.version + " Time:" + new Date().getHours() + ":" + (new Date().getMinutes() < 10 ? "0"+new Date().getMinutes() : new Date().getMinutes()));
         ci.cancel();
-    }
-
-    @Inject(method = "setIcon", at = @At("HEAD"))
-    private void setI(InputStream p_85396_, InputStream p_85397_, CallbackInfo ci) {
-
     }
 }
