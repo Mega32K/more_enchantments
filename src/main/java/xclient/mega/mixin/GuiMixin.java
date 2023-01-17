@@ -431,8 +431,8 @@ public abstract class GuiMixin extends GuiComponent {
             for(int j1 = 0; j1 < 9; ++j1) {
                 int k1 = i - 90 + j1 * 20 + 2;
                 int l1 = this.screenHeight - 16 - 3;
-                if (player.getMainHandItem().equals(player.getInventory().items.get(j1))) {
-                    Render2DUtil.drawRect(p_93011_, k1-1, l1-1, 21, 22, new Color(Main.timeHelper.integer_time/2, 40, Main.timeHelper.integer_time, Main.base_timehelper.integer_time + 40).getRGB());
+                if (player.getInventory().items.indexOf(player.getMainHandItem()) == j1) {
+                    Render2DUtil.drawRect(p_93011_, k1-1, l1-1, 20, 22, new Color(Main.timeHelper.integer_time/2, 40, Main.timeHelper.integer_time, Main.base_timehelper.integer_time + 40).getRGB());
                 }
                 this.renderSlot(k1, l1, p_93010_, player, player.getInventory().items.get(j1), i1++);
             }
