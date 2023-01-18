@@ -14,10 +14,20 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import xclient.mega.event.RenderEvent;
+
+import java.util.Random;
 
 public class RendererUtils {
+    public static TimeHelper timeHelper;
+    public static TimeHelper rotation;
+    public static TimeHelper R;
+    public static TimeHelper G;
+    public static TimeHelper B;
     public static int WHITE = 0xFFFFFFFF;
-    Minecraft mc = Minecraft.getInstance();
+    public static Minecraft mc = Minecraft.getInstance();
 
     public static double getRandom(double min, double max) {
         return Math.random() * (max - min) - (max - min) / 2;
@@ -27,27 +37,27 @@ public class RendererUtils {
         return Math.random() * length - length / 2;
     }
 
-    public void drawItemOnScreen(int x, int y, ItemStack itemStack) {
+    public static void drawItemOnScreen(int x, int y, ItemStack itemStack) {
         drawItemOnScreen(x, y, itemStack, new Vector4f(1.0F, 1.0F, 1.0F, 1.0F), 1);
     }
 
-    public void drawItemOnScreen(int x, int y, ItemStack itemStack, Vector4f color) {
+    public static void drawItemOnScreen(int x, int y, ItemStack itemStack, Vector4f color) {
         drawItemOnScreen(x, y, itemStack, color, 1);
     }
 
-    public void drawItemOnScreen(int x, int y, ItemStack itemStack, Vector4f color, int scale) {
+    public static void drawItemOnScreen(int x, int y, ItemStack itemStack, Vector4f color, int scale) {
         drawItemOnScreen(mc.getItemRenderer(), x, y, itemStack, color, scale);
     }
 
-    public void drawItemOnScreen(ItemRenderer renderer, int x, int y, ItemStack itemStack, Vector4f color, int scale) {
+    public static void drawItemOnScreen(ItemRenderer renderer, int x, int y, ItemStack itemStack, Vector4f color, int scale) {
         renderGuiItem(itemStack, x, y, renderer, scale, color);
     }
 
-    public void renderGuiItem(ItemStack p_115124_, int p_115125_, int p_115126_, ItemRenderer renderer, int scale, Vector4f color) {
-        this.renderGuiItem(p_115124_, p_115125_, p_115126_, renderer.getModel(p_115124_, null, null, 0), renderer, scale, color);
+    public static void renderGuiItem(ItemStack p_115124_, int p_115125_, int p_115126_, ItemRenderer renderer, int scale, Vector4f color) {
+        renderGuiItem(p_115124_, p_115125_, p_115126_, renderer.getModel(p_115124_, null, null, 0), renderer, scale, color);
     }
 
-    public void renderGuiItem(ItemStack p_115128_, int p_115129_, int p_115130_, BakedModel p_115131_, ItemRenderer renderer, int scale, Vector4f color) {
+    public static void renderGuiItem(ItemStack p_115128_, int p_115129_, int p_115130_, BakedModel p_115131_, ItemRenderer renderer, int scale, Vector4f color) {
         mc.textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
         RenderSystem.enableBlend();
@@ -76,6 +86,29 @@ public class RendererUtils {
 
         posestack.popPose();
         RenderSystem.applyModelViewMatrix();
+    }
+
+    public static void setup() {
+        timeHelper = TimeHelper.create(timeHelper, 20, 170);
+    }
+    @Mod.EventBusSubscriber
+    public static class Setup {
+        public static int time = 0;
+        public static int[] in = null;
+        @SubscribeEvent
+        public static void setup(RenderEvent event) {
+            if (in == null) {
+                RendererUtils.setup();
+                in = new int[]{new Random().nextInt(114), new Random().nextInt(114), new Random().nextInt(114), new Random().nextInt(114)};
+            }
+                time++;
+            if (time == in[0])
+                R = TimeHelper.create(R, 1, 255);
+            if (time == in[1])
+                G = TimeHelper.create(G, 1, 255);
+            if (time == in[2])
+                B = TimeHelper.create(B, 1, 255);
+        }
     }
 
 }

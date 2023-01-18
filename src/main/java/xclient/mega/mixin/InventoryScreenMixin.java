@@ -41,7 +41,7 @@ public abstract class InventoryScreenMixin extends EffectRenderingInventoryScree
     protected void renderBg(PoseStack p_98870_, float p_98871_, int p_98872_, int p_98873_) {
         LivingEntity real = this.minecraft.player != minecraft.cameraEntity ? (minecraft.cameraEntity instanceof LivingEntity livingEntity ? livingEntity : minecraft.player) : minecraft.player;
         if (YScreen.display_players)
-            drawCenteredString(p_98870_, RainbowFont.INS, real.getDisplayName().getString() + "\u7684\u80cc\u5305", width, 15, 0xFFFFFFFF);
+            drawString(p_98870_, RainbowFont.INS, real.getDisplayName().getString() + "\u7684\u80cc\u5305", 100, 15, 0xFFFFFFFF);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, INVENTORY_LOCATION);

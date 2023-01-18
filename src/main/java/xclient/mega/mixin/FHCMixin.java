@@ -17,8 +17,6 @@ public class FHCMixin {
     @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
     private static void drawScreen(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (screen instanceof DeathScreen && Main.respawn) {
-            if (Minecraft.getInstance().player != null)
-                Minecraft.getInstance().player.connection.send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
             Minecraft.getInstance().screen = null;
             screen = null;
             Minecraft.getInstance().getSoundManager().resume();

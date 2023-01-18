@@ -6,11 +6,12 @@ import xclient.mega.mod.bigmodule.BigModuleBase;
 
 public interface IScreenClick {
     default void click(double x, double y, int code) {
-        for (BigModuleBase bm : BigModuleBase.every) {
+        for (BigModuleBase bm : BmMain.CREATED) {
+            System.out.println(bm.getName());
             if (bm.isInRange_asModule())
                 bm.click(code);
             for (Module<?> module : Module.every) {
-                if (module.getFather_Bm() instanceof ActionBmC actionBmC && actionBmC.pushed)
+                if (module.getFather_Bm() instanceof ActionBmC actionBmC && actionBmC.pushed && module.getFather_Bm().getName().equals(bm.getName()))
                     if (XScreen.isInRange(module, (int) x, (int) y)) {
                         if (code == 0) {
                             module.left();

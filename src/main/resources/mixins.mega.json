@@ -11,9 +11,11 @@
     "FEFMixin",
     "FHCMixin",
     "InventoryMixin",
+    "ItemMixin",
     "LivingEntityMixin",
     "PlayerMixin",
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "YggdrasilMinecraftSessionServiceMixin"
   ],
   "client": [
     "AbstractClientPlayerMixin",
@@ -31,6 +33,7 @@
     "IButton",
     "IImageButton",
     "InventoryScreenMixin",
+    "LevelLoadingScreenMixin",
     "LoadingOverlayMixin",
     "LocalPlayerMixin",
     "MA",

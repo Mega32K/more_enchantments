@@ -27,6 +27,12 @@ public class TimeHelper {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    public static TimeHelper create(TimeHelper timeHelper, int min, int max) {
+        if (timeHelper == null)
+            timeHelper = new TimeHelper(min, max);
+        return timeHelper;
+    }
+
     public TimeHelper() {
         MinecraftForge.EVENT_BUS.register(this);
     }

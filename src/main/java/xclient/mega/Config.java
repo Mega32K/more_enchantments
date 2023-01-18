@@ -40,6 +40,10 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<Boolean> key_display;
     public static ForgeConfigSpec.ConfigValue<Boolean> quickly_bow;
     public static ForgeConfigSpec.ConfigValue<Boolean> jumping;
+    public static ForgeConfigSpec.ConfigValue<Boolean> critical;
+    public static ForgeConfigSpec.ConfigValue<Boolean> air_jump;
+    public static ForgeConfigSpec.ConfigValue<Boolean> auto_release;
+    public static ForgeConfigSpec.ConfigValue<Boolean> arrow_dodge;
 
     public static ForgeConfigSpec.ConfigValue<Integer> key_x;
     public static ForgeConfigSpec.ConfigValue<Integer> key_y;
@@ -81,11 +85,16 @@ public class Config {
         key_display = COMMON_BUILDER.define("key_display", false);
         quickly_place = COMMON_BUILDER.define("quickly_place", false);
         jumping = COMMON_BUILDER.define("jumping", false);
+        quickly_bow = COMMON_BUILDER.define("quickly bow", false);
+        critical = COMMON_BUILDER.define("critical", false);
+        air_jump = COMMON_BUILDER.define("air_jump", false);
+        auto_release = COMMON_BUILDER.define("auto_release", false);
+        arrow_dodge = COMMON_BUILDER.define("arrow_dodge", false);
+
         background = COMMON_BUILDER.define("background index", 1);
         key_x = COMMON_BUILDER.define("key x", 3);
         key_y = COMMON_BUILDER.define("key y", 70);
         key_scale = COMMON_BUILDER.define("key_scale", 1.0F);
-        quickly_bow = COMMON_BUILDER.define("quickly bow", false);
         COMMON_BUILDER.pop();
         COMMON_CONFIG = COMMON_BUILDER.build();
     }

@@ -7,10 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MegaUtil {
 
@@ -20,6 +17,22 @@ public class MegaUtil {
         List<Entity> entities = new ArrayList<>();
         for (int dis = 0; dis < level * 2; dis += 2) {
             AABB aabb = player.getBoundingBox().inflate(2, 2, 2);
+            Vec3 vec = player.getLookAngle();
+            vec = vec.normalize();
+            aabb = aabb.move(vec.x * dis, vec.y * dis, vec.z * dis);
+            List<Entity> list = player.level.getEntities(player, aabb);
+            entities.addAll(list);
+        }
+        return entities;
+    }
+
+    public static List<Entity> getEntitiesToWatch_withoutScaled(int level, Player player) {
+        if (player == null)
+            return null;
+        List<Entity> entities = new ArrayList<>();
+        for (int dis = 0; dis < level * 2; dis += 2) {
+            AABB aabb = player.getBoundingBox();
+            aabb = new AABB(aabb.minX, aabb.minY+1D, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
             Vec3 vec = player.getLookAngle();
             vec = vec.normalize();
             aabb = aabb.move(vec.x * dis, vec.y * dis, vec.z * dis);
@@ -62,7 +75,6 @@ public class MegaUtil {
     public static void really_sendOpenInv(LocalPlayer player, Player target) {
         player.connection.send(new ServerboundPlayerCommandPacket(target, ServerboundPlayerCommandPacket.Action.OPEN_INVENTORY));
     }
-
 
     public static double circleX(double x, double r, double a) {
         return x + r * Math.cos(Math.toRadians(a));

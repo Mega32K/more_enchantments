@@ -13,11 +13,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import xclient.mega.utils.Textures;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,6 +227,39 @@ public class MegaUtil {
     public static void writeXCLIENT() {
         if (!Main.hasRead)
             return;
+        try {
+            for (Field f : Main.class.getFields()) {
+                if (f.isAnnotationPresent(ModuleValue.class)) {
+                    String name = f.getName();
+                    for (Field f_inConfig : Config.class.getFields()) {
+                        if (Modifier.isStatic(f_inConfig.getModifiers())) {
+                            if (name.equals(f_inConfig.getName())) {
+                                Object f_value = f.get(Main.class);
+                                Object f_inConfig_value = f_inConfig.get(Config.class);
+                                if (f_value instanceof Boolean v) {
+                                    ((ForgeConfigSpec.ConfigValue<Boolean>)f_inConfig_value).set(v);
+                                }
+                                if (f_value instanceof Integer v) {
+                                    ((ForgeConfigSpec.ConfigValue<Integer>)f_inConfig_value).set(v);
+                                }
+                                if (f_value instanceof Float v) {
+                                    ((ForgeConfigSpec.ConfigValue<Float>)f_inConfig_value).set(v);
+                                }
+                                if (f_value instanceof Double v) {
+                                    ((ForgeConfigSpec.ConfigValue<Double>)f_inConfig_value).set(v);
+                                }
+                                if (f_value instanceof String v) {
+                                    ((ForgeConfigSpec.ConfigValue<String>)f_inConfig_value).set(v);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable rabble) {
+            rabble.printStackTrace();
+        }
+        /*
         set(Config.killaura_range, Main.killaura_range);
         set(Config.killaura_attackPlayer, Main.killaura_attackPlayer);
         set(Config.auto_attack, Main.auto_attack);
@@ -238,11 +276,13 @@ public class MegaUtil {
         set(Config.quickly_place, Main.quickly_place);
         set(Config.key_display, Main.key_display);
         set(Config.jumping, Main.jumping);
+        set(Config.quickly_bow, Main.quickly_bow);
+        */
         set(Config.background, Textures.background);
         set(Config.key_x, Main._x_);
         set(Config.key_y, Main._y_);
         set(Config.key_scale, Main.key_scale);
-        set(Config.quickly_bow, Main.quickly_bow);
+
     }
 
     public static void read() {
@@ -258,6 +298,23 @@ public class MegaUtil {
         explosion_banned = Config.EXPLOSION_BANNED_LIST.get();
         dimension_banned = Config.DIMENSION_BANNED_LIST.get();
 
+        try {
+            for (Field f : Main.class.getFields()) {
+                if (f.isAnnotationPresent(ModuleValue.class)) {
+                    String name = f.getName();
+                    for (Field f_inConfig : Config.class.getFields()) {
+                        if (Modifier.isStatic(f_inConfig.getModifiers())) {
+                            if (name.equals(f_inConfig.getName())) {
+                                f.set(Main.class, ((ForgeConfigSpec.ConfigValue<?>)f_inConfig.get(Config.class)).get());
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable rabble) {
+            rabble.printStackTrace();
+        }
+        /*
         Main.killaura_range = Config.killaura_range.get();
         Main.killaura_attackPlayer = Config.killaura_attackPlayer.get();
         Main.auto_attack = Config.auto_attack.get();
@@ -274,10 +331,11 @@ public class MegaUtil {
         Main.key_display = Config.key_display.get();
         Main.quickly_place = Config.quickly_place.get();
         Main.jumping = Config.jumping.get();
+        Main.quickly_bow = Config.quickly_bow.get();
+         */
         Main._x_ = Config.key_x.get();
         Main._y_ = Config.key_y.get();
         Main.key_scale = Config.key_scale.get();
-        Main.quickly_bow = Config.quickly_bow.get();
         Textures.background = Config.background.get();
         Main.hasRead = true;
     }

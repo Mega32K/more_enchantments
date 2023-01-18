@@ -36,6 +36,7 @@ import xclient.mega.Main;
 import xclient.mega.button.ModuleButton;
 import xclient.mega.utils.RainbowFont;
 import xclient.mega.utils.Render2DUtil;
+import xclient.mega.utils.RendererUtils;
 import xclient.mega.utils.Textures;
 
 import javax.annotation.Nullable;

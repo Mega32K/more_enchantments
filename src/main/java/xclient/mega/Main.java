@@ -6,9 +6,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.InteractionHand;
@@ -16,8 +14,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -26,7 +25,7 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -38,11 +37,7 @@ import xclient.mega.mod.ModuleManager;
 import xclient.mega.mod.bigmodule.BigModuleBase;
 import xclient.mega.mod.bigmodule.type.KeyDisplayBM;
 import xclient.mega.mod.bigmodule.type.RenderBm;
-import xclient.mega.network.ServerboundHealPlayer;
-import xclient.mega.utils.RainbowFont;
-import xclient.mega.utils.RendererUtils;
-import xclient.mega.utils.TimeHelper;
-import xclient.mega.utils.Vec2d;
+import xclient.mega.utils.*;
 
 import java.awt.*;
 import java.util.*;
@@ -61,26 +56,52 @@ public class Main {
     public static float key_scale = 1.0F;
     public static float zoom = 1.0F;
 
+    @ModuleValue
     public static boolean killaura_displayInfo = false;
+    @ModuleValue
     public static float killaura_range = 3.8F;
+    @ModuleValue
     public static boolean killaura_attackPlayer = true;
 
     public static Set<Player> renderPlayers = new HashSet<>();
+    @ModuleValue
     public static boolean auto_attack = false;
+    @ModuleValue
     public static boolean enableHurtEffect = true;
+    @ModuleValue
     public static boolean superKillAura = false;
+    @ModuleValue
     public static float reach_distance = 0;
+    @ModuleValue
     public static boolean no_fall;
+    @ModuleValue
     public static boolean respawn;
+    @ModuleValue
     public static boolean fly;
+    @ModuleValue
     public static boolean sprint;
+    @ModuleValue
     public static boolean renderPlayerOutline;
+    @ModuleValue
     public static boolean full_bright;
+    @ModuleValue
     public static boolean dner;
+    @ModuleValue
     public static boolean quickly_place;
+    @ModuleValue
     public static boolean key_display;
+    @ModuleValue
     public static boolean quickly_bow;
+    @ModuleValue
     public static boolean jumping;
+    @ModuleValue
+    public static boolean critical;
+    @ModuleValue
+    public static boolean air_jump;
+    @ModuleValue
+    public static boolean auto_release;
+    @ModuleValue
+    public static boolean arrow_dodge;
 
     public static Module<?> CLIENT;
     public static Module<Boolean> AUTO_ATTACK;
@@ -98,6 +119,10 @@ public class Main {
     public static Module<Boolean> KEY_DISPLAY;
     public static Module<Boolean> QUICKLY_BOW;
     public static Module<Boolean> JUMPING;
+    public static Module<Boolean> CRITICAL;
+    public static Module<Boolean> AIR_JUMP;
+    public static Module<Boolean> AUTO_RELEASE;
+    public static Module<Boolean> ARROW_DODGE;
 
     public static Module<Float> SUPER_KILL_AURA$RANGE;
     public static Module<Boolean> SUPER_KILL_AURA$ATTACK_PLAYER;
@@ -129,16 +154,14 @@ public class Main {
     public static TimeHelper timeHelper;
 
     public Main() {
+        base_timehelper = TimeHelper.create(base_timehelper, 20, 160);
+        timeHelper = TimeHelper.create(timeHelper, 10, 170);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
         MinecraftForge.EVENT_BUS.register(this);
         Networking.registerMessage();
         registerKey(DISPLAY_INFO, OPEN, OPEN2);
         setModules();
         setBms();
-        if (base_timehelper == null)
-            base_timehelper = new TimeHelper(20, 160);
-        if (timeHelper == null)
-            timeHelper = new TimeHelper(10, 170);
         Main.instance = this;
     }
 
@@ -168,9 +191,7 @@ public class Main {
         ModuleManager.configuration_father_modules.clear();
         Module.every.clear();
         CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d ->
-                BigModuleBase.every.forEach(bm -> {
-                    bm.pos = new Vec2d(0, BigModuleBase.every.indexOf(bm) * 10 + 5);
-        }));
+                BmMain.CREATED.forEach(bm -> bm.pos = new Vec2d(0, BmMain.CREATED.indexOf(bm) * 10 + 5)));
 
         AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> auto_attack = !auto_attack));
         SUPER_KILL_AURA = new Module<>("Super KillAura", superKillAura, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> superKillAura = !superKillAura)).setRight(d -> killaura_displayInfo = !killaura_displayInfo);
@@ -181,7 +202,11 @@ public class Main {
         SUPER_KILL_AURA$ATTACK_PLAYER = new Module<>("KillAura AttackPlayer", killaura_attackPlayer, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> killaura_attackPlayer = !killaura_attackPlayer))
                 .setFather(SUPER_KILL_AURA);
         QUICKLY_BOW = new Module<>("Quickly Bow", quickly_bow, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft(d -> quickly_bow = !quickly_bow);
+        CRITICAL = new Module<>("Critical", critical, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft(d -> critical = !critical);
+        ARROW_DODGE = new Module<>("Arrow Dodge", arrow_dodge, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft(d -> arrow_dodge = !arrow_dodge);
+        AUTO_RELEASE = new Module<>("Auto Release", auto_release, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft(d -> auto_release = !auto_release);
 
+        AIR_JUMP = new Module<>("Air Jump", air_jump, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft(d -> air_jump = !air_jump);
         FLY = new Module<>("Fly", fly, false, RainbowFont.NORMAL).setFather_Bm(BmMain.PLAYER).setLeft((d -> {
             fly = !fly;
             Minecraft mc = Minecraft.getInstance();
@@ -218,12 +243,28 @@ public class Main {
         BmMain.setBms();
     }
 
+    @Mod.EventBusSubscriber
+    public static class PlayerEvents {
+        @SubscribeEvent
+        public static void usingItem(LivingEntityUseItemEvent event) {
+            if (event.getEntityLiving() instanceof LocalPlayer player) {
+                if (event.getItem().getItem() instanceof BowItem && auto_release) {
+                    if (BowItem.getPowerForTime(event.getDuration()) >= 1.0F)
+                        if (Minecraft.getInstance().gameMode != null) {
+                            Minecraft.getInstance().gameMode.releaseUsingItem(player);
+                        }
+                }
+            }
+        }
+    }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT)
     public static class TickKeys {
         @SubscribeEvent
         public static void onLoggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
             MegaUtil.writeXCLIENT();
+            if (PLAYER_CAMERA != null)
+                PLAYER_CAMERA.clear();
         }
 
         @SubscribeEvent
@@ -236,7 +277,6 @@ public class Main {
         public static void mouseScroll(InputEvent.MouseScrollEvent event) {
             if (Minecraft.getInstance().options.keySprint.consumeClick()) {
                 zoom += event.getScrollDelta() / 20;
-
             }
             if (zoom < 1.0F)
                 zoom = 1.0F;
@@ -270,10 +310,12 @@ public class Main {
             if (OPEN2.consumeClick())
                 Minecraft.getInstance().setScreen(new YScreen());
             if (mc.player != null) {
+                mc.player.connection.send(new ServerboundSetCreativeModeSlotPacket(10, new ItemStack(Blocks.NETHERITE_BLOCK)));
                 Abilities abilities = new Abilities();
                 abilities.mayfly = true;
                 mc.player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
             }
+
         }
 
         @SubscribeEvent
@@ -283,24 +325,10 @@ public class Main {
             LocalPlayer player = mc.player;
             Entity point = mc.crosshairPickEntity;
             if (player != null) {
-                if (jumping) {
-                    mc.options.keyJump.setDown(true);
-                }
-                if (fly) {
-                    Abilities abilities = new Abilities();
-                    abilities.mayfly = true;
-                    player.getAbilities().mayfly = true;
-                    player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
-                }
-                if (client_ticks % 3 == 0) {
-                    if (no_fall && player.fallDistance <= 0.5F)
-                        player.connection.send(new ServerboundMovePlayerPacket.StatusOnly(true));
-                }
                 if (superKillAura && client_ticks % 20 == 0) {
                     for (Entity entity : xclient.mega.utils.MegaUtil.getEntitiesToWatch(512, player)) {
                         if (entity instanceof LivingEntity livingEntity && point != player && !livingEntity.isDeadOrDying() && !livingEntity.isInvisible() && player.distanceTo(entity) <= killaura_range && livingEntity.deathTime <= 0) {
                             if (mc.gameMode != null) {
-                                //noinspection ConstantConditions
                                 if (!killaura_attackPlayer || (killaura_attackPlayer && !(livingEntity instanceof Player)))
                                     mc.gameMode.attack(player, entity);
                             }
@@ -323,7 +351,7 @@ public class Main {
         }
 
         @SubscribeEvent
-        public static void renderTick(RenderEvent event) {
+        public static void renderPointAndXCInfo(RenderEvent event) {
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
             Entity toWatch = xclient.mega.utils.MegaUtil.getEntityToWatch(20, player);
