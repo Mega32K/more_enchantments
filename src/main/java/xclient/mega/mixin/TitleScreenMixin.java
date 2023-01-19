@@ -7,7 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,11 +28,13 @@ import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.client.gui.NotificationModUpdateScreen;
+import net.minecraftforge.fml.ModLoader;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import the_fireplace.ias.gui.AccountListScreen;
 import xclient.mega.Config;
 import xclient.mega.Main;
 import xclient.mega.button.ModuleButton;
@@ -41,8 +45,10 @@ import xclient.mega.utils.Textures;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mixin(TitleScreen.class)
@@ -90,6 +96,21 @@ public abstract class TitleScreenMixin extends Screen {
                 Textures.background = 1;
             System.out.println(Textures.background);
         }));
+        File mods = new File("mods");
+        File[] mods_ = Objects.<File[]>requireNonNull(mods.listFiles());
+        for (File file : mods_) {
+            if (!file.isDirectory()) {
+                String name = file.getName();
+                name = name.toLowerCase();
+                if (name.endsWith(".jar")) {
+                    if (name.contains("accountswitcher")) {
+                        addRenderableWidget(new ModuleButton(this.width - 20, this.height - 40, 20, 20, new TextComponent("S"), (b) -> {
+                            minecraft.setScreen(new AccountListScreen(this));
+                    }));
+                    }
+                }
+            }
+        }
         Textures.background = Config.background.get();
     }
 
@@ -180,7 +201,7 @@ public abstract class TitleScreenMixin extends Screen {
      * @reason x-client
      */
     @Overwrite
-    protected void init() {
+    public void init() {
         COPYRIGHT_TEXT = new TextComponent("MegaDarkness's website,click here");
         int i = RainbowFont.INS.width(COPYRIGHT_TEXT);
         int j = this.width - i + 30;
@@ -238,4 +259,22 @@ public abstract class TitleScreenMixin extends Screen {
         p_96739_.popPose();
         ci.cancel();
     }
+
+    public final void init(Minecraft p_96607_, int p_96608_, int p_96609_) {
+        this.minecraft = p_96607_;
+        this.itemRenderer = p_96607_.getItemRenderer();
+        this.font = p_96607_.font;
+        this.width = p_96608_;
+        this.height = p_96609_;
+        java.util.function.Consumer<GuiEventListener> add = (b) -> {
+            if (b instanceof Widget w)
+                this.renderables.add(w);
+            if (b instanceof NarratableEntry ne)
+                this.narratables.add(ne);
+            children.add(b);
+        };  this.clearWidgets();
+            this.setFocused((GuiEventListener)null);
+            this.init();
+            this.triggerImmediateNarration(false);
+        }
 }

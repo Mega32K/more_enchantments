@@ -8,15 +8,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -25,7 +22,6 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -36,12 +32,16 @@ import xclient.mega.mod.Module;
 import xclient.mega.mod.ModuleManager;
 import xclient.mega.mod.bigmodule.BigModuleBase;
 import xclient.mega.mod.bigmodule.type.KeyDisplayBM;
-import xclient.mega.mod.bigmodule.type.RenderBm;
-import xclient.mega.utils.*;
+import xclient.mega.utils.RainbowFont;
+import xclient.mega.utils.RendererUtils;
+import xclient.mega.utils.TimeHelper;
+import xclient.mega.utils.Vec2d;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mod("x_client")
 public class Main {
@@ -154,8 +154,6 @@ public class Main {
     public static TimeHelper timeHelper;
 
     public Main() {
-        base_timehelper = TimeHelper.create(base_timehelper, 20, 160);
-        timeHelper = TimeHelper.create(timeHelper, 10, 170);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
         MinecraftForge.EVENT_BUS.register(this);
         Networking.registerMessage();
@@ -173,12 +171,14 @@ public class Main {
     public static void setPlayerCamera() {
         setModules();
         PLAYER_CAMERA = new ArrayList<>();
-        for (Player player : RenderBm.players) {
-            if (!player.isRemoved() && player.tickCount > 1 && player.deathTime <= 0) {
-                Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2, 130, timeHelper.integer_time, timeHelper.integer_time));
-                PLAYER_CAMERA.add(player_camera);
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null)
+            for (Player player : mc.level.players()) {
+                if (!player.isRemoved() && player.tickCount > 1 && player.deathTime <= 0) {
+                    Module<Component> player_camera = new Module<>("", player.getDisplayName(), false, Minecraft.getInstance().font).setLeft(b -> Minecraft.getInstance().cameraEntity = player).setColor(new Color(timeHelper.integer_time / 2, 130, timeHelper.integer_time, timeHelper.integer_time));
+                    PLAYER_CAMERA.add(player_camera);
+                }
             }
-        }
     }
 
     public static void setBms() {
@@ -190,9 +190,12 @@ public class Main {
         ModuleManager.modules.clear();
         ModuleManager.configuration_father_modules.clear();
         Module.every.clear();
-        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d ->
-                BmMain.CREATED.forEach(bm -> bm.pos = new Vec2d(0, BmMain.CREATED.indexOf(bm) * 10 + 5)));
-
+        CLIENT = new Module<>("[Forge]X-Client:1.0").setFont(RainbowFont.INS).setLeft(d -> {
+            BmMain.COMBAT.setPos(0, 11);
+            BmMain.PLAYER.setPos(0, 22);
+            BmMain.RENDER.setPos(0, 33);
+            BmMain.MISC.setPos(0, 44);
+        });
         AUTO_ATTACK = new Module<>("Auto Attack", auto_attack, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> auto_attack = !auto_attack));
         SUPER_KILL_AURA = new Module<>("Super KillAura", superKillAura, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> superKillAura = !superKillAura)).setRight(d -> killaura_displayInfo = !killaura_displayInfo);
         SUPER_KILL_AURA$RANGE = new Module<>("KillAura Range", killaura_range, false, RainbowFont.NORMAL).setFather_Bm(BmMain.COMBAT).setLeft((d -> killaura_range += 0.5F)).setRight(d -> {
@@ -245,17 +248,6 @@ public class Main {
 
     @Mod.EventBusSubscriber
     public static class PlayerEvents {
-        @SubscribeEvent
-        public static void usingItem(LivingEntityUseItemEvent event) {
-            if (event.getEntityLiving() instanceof LocalPlayer player) {
-                if (event.getItem().getItem() instanceof BowItem && auto_release) {
-                    if (BowItem.getPowerForTime(event.getDuration()) >= 1.0F)
-                        if (Minecraft.getInstance().gameMode != null) {
-                            Minecraft.getInstance().gameMode.releaseUsingItem(player);
-                        }
-                }
-            }
-        }
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT)
@@ -310,7 +302,6 @@ public class Main {
             if (OPEN2.consumeClick())
                 Minecraft.getInstance().setScreen(new YScreen());
             if (mc.player != null) {
-                mc.player.connection.send(new ServerboundSetCreativeModeSlotPacket(10, new ItemStack(Blocks.NETHERITE_BLOCK)));
                 Abilities abilities = new Abilities();
                 abilities.mayfly = true;
                 mc.player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
@@ -325,10 +316,10 @@ public class Main {
             LocalPlayer player = mc.player;
             Entity point = mc.crosshairPickEntity;
             if (player != null) {
-                if (superKillAura && client_ticks % 20 == 0) {
+                if (superKillAura) {
                     for (Entity entity : xclient.mega.utils.MegaUtil.getEntitiesToWatch(512, player)) {
                         if (entity instanceof LivingEntity livingEntity && point != player && !livingEntity.isDeadOrDying() && !livingEntity.isInvisible() && player.distanceTo(entity) <= killaura_range && livingEntity.deathTime <= 0) {
-                            if (mc.gameMode != null) {
+                            if (mc.gameMode != null && ((LivingEntity) entity).hurtTime <= 0) {
                                 if (!killaura_attackPlayer || (killaura_attackPlayer && !(livingEntity instanceof Player)))
                                     mc.gameMode.attack(player, entity);
                             }

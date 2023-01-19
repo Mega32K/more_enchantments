@@ -27,6 +27,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.BowItem;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -37,11 +38,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
 import xclient.mega.MegaUtil;
 import xclient.mega.event.GameUpdateEvent;
+import xclient.mega.utils.TimeHelper;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
 
-@Mixin(Minecraft.class)
+@Mixin(value = Minecraft.class, priority = 999)
 public abstract class MinecraftMixin {
     @Shadow
     public abstract Window getWindow();
@@ -96,8 +98,12 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract void run();
 
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(CallbackInfo ci) {
+        Main.base_timehelper = Main.timeHelper = null;
+        Main.base_timehelper = TimeHelper.create(null, 20, 160);
+        Main.timeHelper = TimeHelper.create(null, 10, 170);
         getWindow().setTitle("");
         InputStream inputstream = Main.class.getResourceAsStream("/assets/x_client/textures/icon.png");
         if (inputstream != null) {
@@ -199,7 +205,7 @@ public abstract class MinecraftMixin {
 
         boolean flag2 = false;
         if (this.player.isUsingItem()) {
-            if (!this.options.keyUse.isDown()) {
+            if (!this.options.keyUse.isDown() || (player.getTicksUsingItem() >= 18 && player.getUseItem().getItem() instanceof BowItem && Main.auto_release)) {
                 this.gameMode.releaseUsingItem(this.player);
             }
 

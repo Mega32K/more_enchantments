@@ -18,6 +18,7 @@ public class XScreen extends Screen implements IScreenClick {
 
     public static int mouseX;
     public static int mouseY;
+    public static boolean z;
     protected XScreen() {
         super(new TextComponent(""));
     }
@@ -50,17 +51,22 @@ public class XScreen extends Screen implements IScreenClick {
                 bm.release((int) p_94722_, (int) p_94723_);
         }
         Main.KEY_DISPLAY_BM.release((int) p_94722_, (int) p_94723_);
+        z=false;
         return super.mouseReleased(p_94722_, p_94723_, p_94724_);
     }
 
     @Override
     public boolean mouseDragged(double p_94699_, double p_94700_, int p_94701_, double p_94702_, double p_94703_) {
-        if (Main.KEY_DISPLAY_BM.isInRange((int) p_94699_, (int) p_94700_, new Vec2d(Main._x_, Main._y_), new Vec2d(Main._x_ + 63, Main._y_ + 61))) {
+        if (!z && Main.KEY_DISPLAY_BM.isInRange((int) p_94699_, (int) p_94700_, new Vec2d(Main._x_, Main._y_), new Vec2d(Main._x_ + 63, Main._y_ + 61))) {
             Main.KEY_DISPLAY_BM.startPress((int) p_94699_, (int) p_94700_);
+            z=true;
         }
         for (BigModuleBase bm : BigModuleBase.every) {
-            if (bm.isInRange_asModule() || bm.isPressing) {
-                bm.isPressing = true;
+            if (bm.isInRange_asModule() || bm.isPressing ) {
+                if (!z) {
+                    bm.isPressing = true;
+                    z=true;
+                }
                 bm.update(bm);
             }
         }
@@ -98,7 +104,7 @@ public class XScreen extends Screen implements IScreenClick {
     }
 
     @Override
-    protected void init() {
+    public void init() {
         MegaUtil.read();
         minecraft = Minecraft.getInstance();
         Main.setModules();

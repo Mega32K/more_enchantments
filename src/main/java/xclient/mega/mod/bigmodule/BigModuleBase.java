@@ -40,6 +40,10 @@ public abstract class BigModuleBase implements ActionBm {
         every.clear();
     }
 
+    public void setPos(int x , int y) {
+        this.pos = new Vec2d(x, y);
+    }
+
     public Vec2d getPos() {
         return pos;
     }

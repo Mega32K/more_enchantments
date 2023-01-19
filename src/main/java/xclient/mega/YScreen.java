@@ -62,7 +62,7 @@ public class YScreen extends Screen implements IScreenClick {
     }
 
     @Override
-    protected void init() {
+    public void init() {
         minecraft = Minecraft.getInstance();
         Main.setModules();
         addRenderableWidget(new Button(10, 190, 80, 20, new TextComponent("Player Cameras"), (b) -> display_players = !display_players));

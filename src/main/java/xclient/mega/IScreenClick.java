@@ -7,7 +7,6 @@ import xclient.mega.mod.bigmodule.BigModuleBase;
 public interface IScreenClick {
     default void click(double x, double y, int code) {
         for (BigModuleBase bm : BmMain.CREATED) {
-            System.out.println(bm.getName());
             if (bm.isInRange_asModule())
                 bm.click(code);
             for (Module<?> module : Module.every) {

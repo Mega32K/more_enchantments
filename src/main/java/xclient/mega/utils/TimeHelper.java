@@ -29,7 +29,7 @@ public class TimeHelper {
 
     public static TimeHelper create(TimeHelper timeHelper, int min, int max) {
         if (timeHelper == null)
-            timeHelper = new TimeHelper(min, max);
+            return new  TimeHelper(min, max);
         return timeHelper;
     }
 

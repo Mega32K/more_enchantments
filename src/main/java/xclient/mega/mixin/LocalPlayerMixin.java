@@ -6,6 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -14,6 +15,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xclient.mega.Main;
+import xclient.mega.utils.PU;
 
 import java.util.Random;
 
@@ -40,9 +43,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 
     @Override
     public void attack(Entity p_36347_) {
-        if (Main.critical)
+        if (Main.critical) {
             connection.send(new ServerboundMovePlayerPacket.Pos(getX(), getY() + 1, getZ(), false));
-        fallDistance = 0.5F;
+            fallDistance = 0.5F;
+        }
         super.attack(p_36347_);
         if (Main.critical)
             connection.send(new ServerboundMovePlayerPacket.Pos(getX(), getY() + 1, getZ(), false));
@@ -51,9 +55,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Inject(method = "hurt", at = @At("HEAD"))
     public void hurt_b(DamageSource p_108662_, float p_108663_, CallbackInfoReturnable<Boolean> c) {
         if (p_108662_.isProjectile() && Main.arrow_dodge) {
-            Vec3 vec3 = new Vec3(2, 0, 2);
+            Vec3 vec3 = new Vec3(4, 0, 4);
             connection.send(new ServerboundMovePlayerPacket.Pos(getX() + vec3.x, getY() + vec3.y, getZ() + vec3.z, false));
-            connection.send(new ServerboundMovePlayerPacket.Pos(getX() - vec3.x, getY() - vec3.y, getZ() - vec3.z, false));
+            setPos(getX() + vec3.x, getY() + vec3.y, getZ() + vec3.z);
         }
     }
 
@@ -76,10 +80,18 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
             connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
         }
         if (Main.air_jump) {
-            if (minecraft.options.keyJump.consumeClick()) {
+            if (minecraft.options.keyJump.consumeClick() && minecraft.options.keyJump.isDown()) {
                 if (getDeltaMovement().y <= 0.05) {
-                    setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y+1, getDeltaMovement().z);
+                    if (minecraft.options.keyUp.consumeClick() || minecraft.options.keyUp.isDown())
+                        setDeltaMovement(getLookAngle().x * 2, getLookAngle().y * 2 , getLookAngle().z * 2);
+                    else setDeltaMovement(getDeltaMovement().x, getDeltaMovement().y+2, getDeltaMovement().z);
+
+                    PU pu = new PU(level, ParticleTypes.DRAGON_BREATH, getX(), getY(), getZ());
+                    pu.spawnHorizontalCircle(0.1, 1);
                 }
+            } if (minecraft.options.keyShift.consumeClick()) {
+                if (level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, blockPosition()).getY() > 6)
+                    setDeltaMovement(getDeltaMovement().add(0, -2, 0));
             }
         }
     }
