@@ -47,7 +47,7 @@ public class XScreen extends Screen implements IScreenClick {
     @Override
     public boolean mouseReleased(double p_94722_, double p_94723_, int p_94724_) {
         for (BigModuleBase bm : BigModuleBase.every) {
-            if (bm.isInRange_asModule())
+            if (bm.isInRange_asModule()) 
                 bm.release((int) p_94722_, (int) p_94723_);
         }
         Main.KEY_DISPLAY_BM.release((int) p_94722_, (int) p_94723_);

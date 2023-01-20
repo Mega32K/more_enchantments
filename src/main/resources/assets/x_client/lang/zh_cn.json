@@ -82,7 +82,8 @@
   "key.ka" : "Super KillAura",
   "key.info" : "显示信息",
   "key.category.x_client" : "The X",
-
+  "xc.info.logic1" : "开启",
+  "xc.info.logic2" : "关闭",
   "auto_attack" : "自动攻击",
   "super_killaura" : "杀戮光环",
   "killaura_range" : "杀戮光环 范围",

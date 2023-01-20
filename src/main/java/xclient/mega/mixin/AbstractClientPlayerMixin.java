@@ -6,10 +6,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xclient.mega.Main;
 import xclient.mega.mod.bigmodule.type.RenderBm;
+import xclient.mega.utils.XSynchedEntityData;
 
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerMixin extends Player {
@@ -43,8 +47,11 @@ public abstract class AbstractClientPlayerMixin extends Player {
     @Override
     protected void tickDeath() {
         if (((Object)this) instanceof LocalPlayer player) {
-            if (Main.respawn)
-                player.connection.send(new ServerboundChatPacket("/back"));
+            if (Main.respawn) {
+                SynchedEntityData date = new XSynchedEntityData(this, getEntityData());
+                date.set(LivingEntity.DATA_HEALTH_ID, 20F);
+                player.connection.handleSetEntityData(new ClientboundSetEntityDataPacket(getId(), date, false));
+            }
         }
         super.tickDeath();
     }

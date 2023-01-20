@@ -7,14 +7,12 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.game.ServerboundChatPacket;
-import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
-import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraft.world.item.BowItem;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
@@ -25,9 +23,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xclient.mega.Main;
+import xclient.mega.Saver;
 import xclient.mega.utils.PU;
-
-import java.util.Random;
+import xclient.mega.utils.XSynchedEntityData;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends AbstractClientPlayer {
@@ -64,14 +62,21 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo c) {
         if (Main.respawn && deathTime > 0) {
+            SynchedEntityData date = new XSynchedEntityData(this, getEntityData());
+            date.set(LivingEntity.DATA_HEALTH_ID, 20F);
+            connection.handleSetEntityData(new ClientboundSetEntityDataPacket(getId(), date, false));
             connection.send(new ServerboundChatPacket("/back"));
             connection.send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
+            connection.send(new ServerboundChatPacket("/back"));
             deathTime = 0;
         }
         if (Main.no_fall && fallDistance > 0.5F)
             connection.send(new ServerboundMovePlayerPacket.StatusOnly(true));
         if (Main.jumping) {
             minecraft.options.keyJump.setDown(true);
+        }
+        if (Main.dner) {
+            clearFire();
         }
         if (Main.fly) {
             Abilities abilities = new Abilities();
@@ -94,5 +99,6 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
                     setDeltaMovement(getDeltaMovement().add(0, -2, 0));
             }
         }
-    }
+
+        }
 }

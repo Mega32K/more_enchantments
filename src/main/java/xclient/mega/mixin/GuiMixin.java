@@ -415,7 +415,7 @@ public abstract class GuiMixin extends GuiComponent {
             this.setBlitOffset(-90);
             Color hotbarColor = new Color(0, 0, 0, 120);
             Render2DUtil.drawRect(p_93011_, i - 91, this.screenHeight - 22,182, 22, hotbarColor.getRGB());
-            Render2DUtil.drawRect(p_93011_, i - 91 + player.getInventory().selected * 20, this.screenHeight - 22, 22, 22, new Color(Main.timeHelper.integer_time/2, 40, Main.timeHelper.integer_time, Main.base_timehelper.integer_time + 40).getRGB());
+            Render2DUtil.drawRect(p_93011_, i - 91 + player.getInventory().selected * 20, this.screenHeight - 22, 22, 22, Color.PINK.getRGB());
             if (!itemstack.isEmpty()) {
                 if (humanoidarm == HumanoidArm.LEFT) {
                     Render2DUtil.drawRect(p_93011_, i - 91 - 29, this.screenHeight - 23,26, 22, hotbarColor.getRGB());

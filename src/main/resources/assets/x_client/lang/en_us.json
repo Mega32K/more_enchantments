@@ -85,6 +85,9 @@
   "key.message" : "Open/Close EditScreen",
   "key.y" : "Open/Close CameraScreen",
 
+  "xc.info.logic1" : "On",
+  "xc.info.logic2" : "Off",
+
   "auto_attack" : "Auto Attack",
   "super_killaura" : "Super KillAura",
   "killaura_range" : "KillAura Range",

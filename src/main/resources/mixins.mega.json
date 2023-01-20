@@ -10,6 +10,7 @@
     "EntityMixin",
     "FEFMixin",
     "FHCMixin",
+    "ILiving",
     "ImageButtonMixin",
     "InventoryMixin",
     "ItemMixin",

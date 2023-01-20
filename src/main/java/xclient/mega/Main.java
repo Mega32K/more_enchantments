@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -45,7 +46,7 @@ import java.util.Set;
 
 @Mod("x_client")
 public class Main {
-    public static String version = "V1.1";
+    public static String version = "V1.2.1";
     public static boolean hasRead;
 
     public static Saver<Integer> GAMMA;
@@ -296,16 +297,10 @@ public class Main {
 
         @SubscribeEvent
         public static void onKey(InputEvent.KeyInputEvent event) {
-            Minecraft mc = Minecraft.getInstance();
             if (OPEN.consumeClick())
                 Minecraft.getInstance().setScreen(new XScreen());
             if (OPEN2.consumeClick())
                 Minecraft.getInstance().setScreen(new YScreen());
-            if (mc.player != null) {
-                Abilities abilities = new Abilities();
-                abilities.mayfly = true;
-                mc.player.connection.send(new ServerboundPlayerAbilitiesPacket(abilities));
-            }
 
         }
 

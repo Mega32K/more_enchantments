@@ -3,6 +3,7 @@ buildscript {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url = 'https://github.com/VidTu/In-Game-Account-Switcher/tree/archive/1.18'}
         mavenCentral()
     }
     dependencies {
@@ -18,7 +19,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.18.2-1.2'
+version = '1.18.2-1.2.1'
 group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = '[Forge]X-Client'
 
